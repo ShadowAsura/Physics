@@ -1,6 +1,7 @@
 import pygame
 import pygame.gfxdraw
 from pendulum import Pendulum
+from Spring import Spring
 import math
 
 pygame.init()
@@ -13,7 +14,8 @@ SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("2D Physics Engine")
 
-pendulum = Pendulum(SCREEN_WIDTH // 2, 100, 200, 0.5)
+spring = Spring(SCREEN_WIDTH // 2, 100, 150, k=0.2)
+
 
 running = True
 while running:
@@ -23,8 +25,13 @@ while running:
 
     screen.fill((255, 255, 255))  # Fill the screen with white
 
-    pendulum.update()
-    pendulum.draw(screen)
+    
+
+    # In the main loop:
+    spring.update()
+    spring.draw(screen)
+
+
 
     pygame.display.flip()
     pygame.time.wait(10)
