@@ -7,31 +7,37 @@ class Spring:
         self.length = length  # Rest length
         self.k = k  # Spring constant
         self.end = [anchor_x, anchor_y + length]  # Initial position of the end point
-        self.velocity = [0, -10]
+        self.velocity = [0, -20]
         self.screen_height = screen_height
         self.num_coils = num_coils
         self.coil_length = length / num_coils
+        self.dragging = False
 
     def update(self):
-        # Calculate displacement from rest position
-        displacement = (self.end[1] - self.anchor[1]) - self.length
-            
-        # Calculate net acceleration
-        g = 0.2  # Gravity
-        acceleration = -self.k * displacement + g
-
-        # Predict the next position
-        next_position = self.end[1] + self.velocity[1] + acceleration
-
-        # Boundary check for the end point
-        if next_position > self.screen_height - 20:
-            self.end[1] = self.screen_height - 20
-            self.velocity[1] *= -0.7  # Reflect the velocity with damping
+        if self.dragging:
+            self.end[0], self.end[1] = pygame.mouse.get_pos()
+            self.velocity = [0, 0]  # Reset velocity
         else:
-            # Update velocity and position
-            self.velocity[1] += acceleration
-            self.velocity[1] *= 0.99  # Damping
-            self.end[1] += self.velocity[1]
+            # ... (rest of the update method)
+            # Calculate displacement from rest position
+            displacement = (self.end[1] - self.anchor[1]) - self.length
+                
+            # Calculate net acceleration
+            g = 0.2  # Gravity
+            acceleration = -self.k * displacement + g
+
+            # Predict the next position
+            next_position = self.end[1] + self.velocity[1] + acceleration
+
+            # Boundary check for the end point
+            if next_position > self.screen_height - 20:
+                self.end[1] = self.screen_height - 20
+                self.velocity[1] *= -0.6  # Reflect collision damping
+            else:
+                # Update velocity and position
+                self.velocity[1] += acceleration
+                self.velocity[1] *= 0.95 # Damping
+                self.end[1] += self.velocity[1]
 
 
     def draw(self, screen):

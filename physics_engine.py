@@ -27,6 +27,13 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Check if the mouse position is near the spring's end
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if math.sqrt((mouse_x - spring.end[0])**2 + (mouse_y - spring.end[1])**2) < 20:
+                spring.dragging = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            spring.dragging = False
 
     screen.fill((255, 255, 255))  # Fill the screen with white
 
