@@ -2,31 +2,37 @@ import math
 import pygame
 
 class Spring:
-    def __init__(self, anchor_x, anchor_y, length, k=0.1, num_coils=10):
-        self.anchor = (anchor_x, anchor_y)
+    def __init__(self, anchor_x, anchor_y, length, k, screen_height, num_coils=10):
+        self.anchor = (anchor_x, anchor_y)  # Fixed anchor point
         self.length = length  # Rest length
         self.k = k  # Spring constant
         self.end = [anchor_x, anchor_y + length]  # Initial position of the end point
-        self.velocity = [0, 0]
+        self.velocity = [0, -10]
+        self.screen_height = screen_height
         self.num_coils = num_coils
         self.coil_length = length / num_coils
 
     def update(self):
         # Calculate displacement from rest position
-        displacement = math.sqrt((self.end[0] - self.anchor[0])**2 + (self.end[1] - self.anchor[1])**2) - self.length
-        
-        # Limit the maximum stretch
-        MAX_STRETCH = self.length * 0.5
-        if displacement > MAX_STRETCH:
-            displacement = MAX_STRETCH
-        
-        # Calculate force based on Hooke's law
-        force = self.k * displacement
+        displacement = (self.end[1] - self.anchor[1]) - self.length
+            
+        # Calculate net acceleration
+        g = 0.2  # Gravity
+        acceleration = -self.k * displacement + g
 
-        # Update velocity and position (simple Euler integration for demonstration)
-        self.velocity[1] += force - 0.2  # Adding gravity effect
-        self.velocity[1] *= 0.92  # Increased damping
-        self.end[1] += self.velocity[1]
+        # Predict the next position
+        next_position = self.end[1] + self.velocity[1] + acceleration
+
+        # Boundary check for the end point
+        if next_position > self.screen_height - 20:
+            self.end[1] = self.screen_height - 20
+            self.velocity[1] *= -0.7  # Reflect the velocity with damping
+        else:
+            # Update velocity and position
+            self.velocity[1] += acceleration
+            self.velocity[1] *= 0.99  # Damping
+            self.end[1] += self.velocity[1]
+
 
     def draw(self, screen):
         coil_space = (self.end[1] - self.anchor[1]) / self.num_coils
@@ -38,4 +44,3 @@ class Spring:
         
         # Draw the mass at the end
         pygame.draw.circle(screen, (0, 0, 255), (int(self.end[0]), int(self.end[1])), 10)
-

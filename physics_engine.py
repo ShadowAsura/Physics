@@ -14,7 +14,12 @@ SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("2D Physics Engine")
 
-spring = Spring(SCREEN_WIDTH // 2, 100, 150, k=0.2)
+spring = Spring(SCREEN_WIDTH // 2, 100, 100, 0.05, SCREEN_HEIGHT)
+
+
+
+
+
 
 
 running = True
