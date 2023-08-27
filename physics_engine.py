@@ -1,6 +1,7 @@
 import pygame
 from SpringChain import SpringChain
 from Spring import Spring
+from SoftBody import SoftBody
 import math
 
 # Initialize pygame
@@ -31,7 +32,7 @@ class MainMenuScene(Scene):
     def __init__(self):
         super().__init__()
         self.font = pygame.font.SysFont(None, 55)
-        self.options = ["Pendulum", "Spring", "Fluid"]
+        self.options = ["SoftBody", "Spring", "Fluid"]
         self.buttons = [self.font.render(option, True, BLACK) for option in self.options]
 
     def draw(self, screen):
@@ -48,8 +49,59 @@ class MainMenuScene(Scene):
                     # Switch to the corresponding scene
                     if self.options[index] == "Spring":
                         scene_manager.switch_to_scene(SpringScene())
+                    elif self.options[index] == "SoftBody":
+                        scene_manager.switch_to_scene(SoftBodyScene())
+                    if self.options[index] == "Spring":
+                        scene_manager.switch_to_scene(SpringScene())
                     # Add other scenes as needed
 
+class SoftBodyScene(Scene):
+    def __init__(self):
+        super().__init__()
+        # Create a soft body at the center of the screen
+        self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5)
+        self.dragged_particle = None
+    def draw(self, screen):
+        screen.fill(WHITE)
+        self.soft_body.render(screen)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            
+            # Check if mouse is near the center of mass
+            center_of_mass = self.soft_body.compute_center_of_mass()
+            distance_to_com = center_of_mass.distance_to(pygame.Vector2(mouse_x, mouse_y))
+            
+            if distance_to_com < 20:  # Adjust this threshold as needed
+                self.soft_body.dragging = True
+                self.soft_body.drag_offset = pygame.Vector2(mouse_x, mouse_y) - center_of_mass
+            else:
+                # Check if mouse is near any particle
+                for particle in self.soft_body.particles:
+                    distance_to_particle = particle.position.distance_to(pygame.Vector2(mouse_x, mouse_y))
+                    if distance_to_particle < particle.radius:
+                        self.dragged_particle = particle
+                        break
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.soft_body.dragging = False
+            self.dragged_particle = None
+
+        elif event.type == pygame.MOUSEMOTION:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if self.soft_body.dragging:
+                self.soft_body.handle_mouse_move(mouse_x, mouse_y)
+            elif self.dragged_particle:
+                self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
+
+
+
+    def update(self):
+        if self.dragged_particle:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
+        self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()
@@ -101,7 +153,7 @@ class SceneManager:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Physics Engine UI")
 scene_manager = SceneManager()
-
+clock = pygame.time.Clock()
 running = True
 while running:
     for event in pygame.event.get():
@@ -112,7 +164,7 @@ while running:
     scene_manager.update()
     scene_manager.draw(screen)
     pygame.display.flip()
-    pygame.time.wait(10)
+    clock.tick(75) # This will cap the loop to run at 60 FPS
 
 pygame.quit()
 
