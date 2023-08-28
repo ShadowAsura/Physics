@@ -59,7 +59,8 @@ class SoftBodyScene(Scene):
     def __init__(self):
         super().__init__()
         # Create a soft body at the center of the screen
-        self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5)
+        self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5, SCREEN_WIDTH, SCREEN_HEIGHT)
+
         self.dragged_particle = None
     def draw(self, screen):
         screen.fill(WHITE)
@@ -102,6 +103,10 @@ class SoftBodyScene(Scene):
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
         self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
+        for particle in self.soft_body.particles:
+            particle.apply_gravity()
+            particle.integrate(0.01667)
+
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()
@@ -127,10 +132,11 @@ class SpringScene(Scene):
                 self.spring_chain.add_spring()
 
     def update(self):
-        if self.spring_chain.dragging:
+        if self.dragged_particle:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.dragged_spring.end = [mouse_x, mouse_y]  # Update the position of the dragged spring
-        self.spring_chain.update()
+            self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
+        self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
+
 
 
 class SceneManager:
