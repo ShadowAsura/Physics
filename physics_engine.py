@@ -42,6 +42,7 @@ class MainMenuScene(Scene):
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
+            print("Mouse button down event captured in SoftBodyScene!")  # Debugging print statement
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for index, button in enumerate(self.buttons):
                 button_rect = button.get_rect(topleft=(SCREEN_WIDTH // 2 - button.get_width() // 2, 150 + index * 60))
@@ -100,8 +101,11 @@ class SoftBodyScene(Scene):
 
     def update(self):
         if self.dragged_particle:
+            print("Dragging a particle!")  # Debugging print statement
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
+        elif self.soft_body.dragging:
+            print("Dragging the center of mass!")  # Debugging print statement
         self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
         for particle in self.soft_body.particles:
             particle.apply_gravity()
@@ -165,12 +169,18 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        scene_manager.handle_event(event)
+        elif event.type == pygame.MOUSEMOTION:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if hasattr(scene_manager.current_scene, 'handle_mouse_move'):
+                scene_manager.current_scene.handle_mouse_move(mouse_x, mouse_y)
+        else:
+            scene_manager.handle_event(event)
 
     scene_manager.update()
     scene_manager.draw(screen)
     pygame.display.flip()
-    clock.tick(75) # This will cap the loop to run at 60 FPS
+    clock.tick(75)  # This will cap the loop to run at 60 FPS
+
 
 pygame.quit()
 

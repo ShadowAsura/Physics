@@ -51,7 +51,10 @@ class SoftBody:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             translation = pygame.Vector2(mouse_x, mouse_y) - self.drag_offset - self.compute_center_of_mass()
             for particle in self.particles:
+                print("Particle position before:", self.particles[0].position)
                 particle.position += translation
+                print("Particle position after:", self.particles[0].position)
+
         for particle in self.particles:
             # Bottom boundary
             if particle.position.y > self.SCREEN_HEIGHT - particle.radius:
@@ -77,6 +80,7 @@ class SoftBody:
         if self.dragging:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             translation = pygame.Vector2(mouse_x, mouse_y) - self.drag_offset - self.compute_center_of_mass()
+            print("Translation:", translation)
             for particle in self.particles:
                 particle.position += translation
 
@@ -99,34 +103,41 @@ class SoftBody:
         pygame.draw.circle(screen, (255, 0, 0), (int(com.x), int(com.y)), 8)  # Draw a red circle for COM
         pygame.draw.line(screen, (255, 0, 0), (int(com.x) - 10, int(com.y)), (int(com.x) + 10, int(com.y)), 2)  # Horizontal line
         pygame.draw.line(screen, (255, 0, 0), (int(com.x), int(com.y) - 10), (int(com.x), int(com.y) + 10), 2)  # Vertical line
-
+        # If dragging, visualize the drag offset and translation
+        if self.dragging:
+            pygame.draw.line(screen, (0, 255, 0), (int(self.drag_offset.x), int(self.drag_offset.y)), (int(self.compute_center_of_mass().x), int(self.compute_center_of_mass().y)), 2)
+            pygame.draw.line(screen, (255, 0, 255), (int(self.compute_center_of_mass().x), int(self.compute_center_of_mass().y)), (int(self.compute_center_of_mass().x + self.drag_offset.x), int(self.compute_center_of_mass().y + self.drag_offset.y)), 2)
 
 
     def handle_mouse_down(self, x, y):
         center_of_mass = self.compute_center_of_mass()
-        distance = center_of_mass.distance_to(pygame.Vector2(x, y))
-        if distance < 20:  # You can adjust this threshold
-            print("Center of mass is being dragged!")  # Add this line
+        distance_to_com = center_of_mass.distance_to(pygame.Vector2(x, y))
+        
+        if distance_to_com < 20:  # Adjust this threshold as needed
             self.dragging = True
             self.drag_offset = pygame.Vector2(x, y) - center_of_mass
-            for spring in self.springs:
-                spring.rest_length *= 1.1
-        print("Mouse button pressed!")  # Add this line
-
-
-
-    def handle_mouse_up(self):
-        self.dragging = False
-
-        # Reset the base_rest_length of all springs to their original value
-        for spring in self.springs:
-            spring.rest_length = spring.base_rest_length
-        print("Mouse button released!")  # Add this line
+            print("Initial Center of Mass:", center_of_mass)
+            print("Drag Offset:", self.drag_offset)
+        print(f"Drag Offset: {self.soft_body.drag_offset.x}, {self.soft_body.drag_offset.y}")
 
 
 
 
     def handle_mouse_move(self, mouse_x, mouse_y):
+        print("Mouse Position:", mouse_x, mouse_y)
+        if self.dragging:
+            translation = pygame.Vector2(mouse_x, mouse_y) - self.drag_offset - self.compute_center_of_mass()
+            print("Mouse Position:", (mouse_x, mouse_y))
+            print("Translation:", translation)
+            for particle in self.particles:
+                particle.position += translation
+            print("New Center of Mass:", self.compute_center_of_mass())
+
+
+
+
+    def handle_mouse_move(self, mouse_x, mouse_y):
+        print("Handling mouse move in SoftBody!")  # Debugging print statement
         if self.dragging and self.dragged_particle:
             self.dragged_particle.position.x = mouse_x
             self.dragged_particle.position.y = mouse_y
