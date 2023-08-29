@@ -171,10 +171,16 @@ while running:
             running = False
         elif event.type == pygame.MOUSEMOTION:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            if hasattr(scene_manager.current_scene, 'handle_mouse_move'):
-                scene_manager.current_scene.handle_mouse_move(mouse_x, mouse_y)
+            
+            # Check if the current scene is SoftBodyScene
+            if isinstance(scene_manager.current_scene, SoftBodyScene):
+                if scene_manager.current_scene.soft_body.dragging:
+                    scene_manager.current_scene.soft_body.handle_mouse_move(mouse_x, mouse_y)
+                elif scene_manager.current_scene.soft_body.dragged_particle:
+                    scene_manager.current_scene.soft_body.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
         else:
             scene_manager.handle_event(event)
+
 
     scene_manager.update()
     scene_manager.draw(screen)

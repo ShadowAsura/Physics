@@ -8,6 +8,7 @@ class SoftBody:
     def __init__(self, x, y, width, height, particle_mass, spring_stiffness, num_particles, screen_width=800, screen_height=600):
         self.SCREEN_WIDTH = screen_width
         self.SCREEN_HEIGHT = screen_height
+        self.initial_relative_positions = []
         self.particles = self.create_particles(x, y, width, height, particle_mass, num_particles)
         self.springs = self.create_springs(5.0)  # Adjust this value as needed
 
@@ -15,6 +16,9 @@ class SoftBody:
         self.dragged_particle = None
         self.spring_stiffness = spring_stiffness
 
+        self.drag_force_multiplier = 20.0  # Adjust as needed
+        self.restoring_force_multiplier = 0.5  # Adjust as needed
+        self.initial_positions = [particle.position.copy() for particle in self.particles]
 
         self.shake_duration = 0  # Duration for which the shaking effect should last
 
@@ -22,10 +26,13 @@ class SoftBody:
         particles = []
         dx = width / (num_particles - 1)
         dy = height / (num_particles - 1)
+        initial_center_of_mass = pygame.Vector2(x + width/2, y + height/2)
         for i in range(num_particles):
             for j in range(num_particles):
                 particle = Particle(x + i * dx, y + j * dy, particle_mass, self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
                 particles.append(particle)
+                # Store the initial relative position of each particle
+                self.initial_relative_positions.append(particle.position - initial_center_of_mass)
         return particles
 
     def create_springs(self, spring_stiffness):
@@ -49,40 +56,43 @@ class SoftBody:
 
         if self.dragging:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            translation = pygame.Vector2(mouse_x, mouse_y) - self.drag_offset - self.compute_center_of_mass()
+            current_center_of_mass = self.compute_center_of_mass()
+            translation = pygame.Vector2(mouse_x, mouse_y) - current_center_of_mass
+
+            # Constants
+            SPRING_CONSTANT = 0.5  # Adjust this value to change the strength of the wobble
+
             for particle in self.particles:
-                print("Particle position before:", self.particles[0].position)
+                # Apply the translation to move the particle
                 particle.position += translation
-                print("Particle position after:", self.particles[0].position)
 
-        for particle in self.particles:
-            # Bottom boundary
-            if particle.position.y > self.SCREEN_HEIGHT - particle.radius:
-                particle.position.y = self.SCREEN_HEIGHT - particle.radius
-                particle.velocity.y = -abs(particle.velocity.y)
+                # Calculate the displacement of the particle from the center of mass
+                displacement = particle.position - current_center_of_mass
 
-            # Top boundary
-            if particle.position.y < particle.radius:
-                particle.position.y = particle.radius
-                particle.velocity.y = abs(particle.velocity.y)
+                # Calculate the spring force based on the displacement
+                spring_force = -SPRING_CONSTANT * displacement
 
-            # Right boundary
-            if particle.position.x > self.SCREEN_WIDTH - particle.radius:
-                particle.position.x = self.SCREEN_WIDTH - particle.radius
-                particle.velocity.x = -abs(particle.velocity.x)
+                # Apply the spring force to the particle
+                particle.forces += spring_force
 
-            # Left boundary
-            if particle.position.x < particle.radius:
-                particle.position.x = particle.radius
-                particle.velocity.x = abs(particle.velocity.x)
 
-        # If shake_duration is greater than zero, apply a random force to each particle
-        if self.dragging:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            translation = pygame.Vector2(mouse_x, mouse_y) - self.drag_offset - self.compute_center_of_mass()
-            print("Translation:", translation)
-            for particle in self.particles:
-                particle.position += translation
+
+        # Constants
+        RESTORATIVE_CONSTANT = 1  # Adjust this value to change the strength of the restoration
+
+        current_center_of_mass = self.compute_center_of_mass()
+        for i, particle in enumerate(self.particles):
+            # Calculate the desired position of the particle relative to the current center of mass
+            desired_position = current_center_of_mass + self.initial_relative_positions[i]
+            
+            # Calculate the displacement from the desired position
+            displacement = particle.position - desired_position
+
+            # Calculate the restorative force
+            restorative_force = -RESTORATIVE_CONSTANT * displacement
+
+            # Apply the restorative force to the particle
+            particle.forces += restorative_force
 
     def compute_center_of_mass(self):
         center_of_mass = pygame.Vector2(0, 0)
@@ -104,9 +114,7 @@ class SoftBody:
         pygame.draw.line(screen, (255, 0, 0), (int(com.x) - 10, int(com.y)), (int(com.x) + 10, int(com.y)), 2)  # Horizontal line
         pygame.draw.line(screen, (255, 0, 0), (int(com.x), int(com.y) - 10), (int(com.x), int(com.y) + 10), 2)  # Vertical line
         # If dragging, visualize the drag offset and translation
-        if self.dragging:
-            pygame.draw.line(screen, (0, 255, 0), (int(self.drag_offset.x), int(self.drag_offset.y)), (int(self.compute_center_of_mass().x), int(self.compute_center_of_mass().y)), 2)
-            pygame.draw.line(screen, (255, 0, 255), (int(self.compute_center_of_mass().x), int(self.compute_center_of_mass().y)), (int(self.compute_center_of_mass().x + self.drag_offset.x), int(self.compute_center_of_mass().y + self.drag_offset.y)), 2)
+
 
 
     def handle_mouse_down(self, x, y):
@@ -116,28 +124,13 @@ class SoftBody:
         if distance_to_com < 20:  # Adjust this threshold as needed
             self.dragging = True
             self.drag_offset = pygame.Vector2(x, y) - center_of_mass
-            print("Initial Center of Mass:", center_of_mass)
-            print("Drag Offset:", self.drag_offset)
-        print(f"Drag Offset: {self.soft_body.drag_offset.x}, {self.soft_body.drag_offset.y}")
 
 
-
-
-    def handle_mouse_move(self, mouse_x, mouse_y):
-        print("Mouse Position:", mouse_x, mouse_y)
-        if self.dragging:
-            translation = pygame.Vector2(mouse_x, mouse_y) - self.drag_offset - self.compute_center_of_mass()
-            print("Mouse Position:", (mouse_x, mouse_y))
-            print("Translation:", translation)
-            for particle in self.particles:
-                particle.position += translation
-            print("New Center of Mass:", self.compute_center_of_mass())
 
 
 
 
     def handle_mouse_move(self, mouse_x, mouse_y):
-        print("Handling mouse move in SoftBody!")  # Debugging print statement
         if self.dragging and self.dragged_particle:
             self.dragged_particle.position.x = mouse_x
             self.dragged_particle.position.y = mouse_y
