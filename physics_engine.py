@@ -3,6 +3,8 @@ from SpringChain import SpringChain
 from Spring import Spring
 from SoftBody import SoftBody
 import math
+from SpringUI import SpringUI
+
 
 # Initialize pygame
 pygame.init()
@@ -114,32 +116,39 @@ class SoftBodyScene(Scene):
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()
-        self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 3, 100, 0.05, SCREEN_HEIGHT)
-
+        self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 1, 100, 0.05, SCREEN_HEIGHT)
+        self.spring_ui = SpringUI(10, 10)  # Position the UI at (10, 10)
+        self.dragged_spring = None  # Add this line to keep track of the dragged spring
 
     def draw(self, screen):
         screen.fill(WHITE)
         self.spring_chain.draw(screen)
+        self.spring_ui.draw(screen)  # Draw the UI
 
     def handle_event(self, event):
+        self.spring_ui.handle_event(event, self.spring_chain)  # Handle UI events
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for spring in self.spring_chain.springs:
                 if math.sqrt((mouse_x - spring.end[0])**2 + (mouse_y - spring.end[1])**2) < 20:
-                    self.spring_chain.dragging = True
-                    self.dragged_spring = spring  # Store the spring being dragged
+                    spring.dragging = True
+                    self.dragged_spring = spring
                     break
         elif event.type == pygame.MOUSEBUTTONUP:
-            self.spring_chain.dragging = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                self.spring_chain.add_spring()
+            if self.dragged_spring:
+                self.dragged_spring.dragging = False
+                self.dragged_spring = None
 
     def update(self):
-        if self.dragged_particle:
+        if self.dragged_spring and self.dragged_spring.dragging:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
-        self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
+            self.dragged_spring.end[0] = mouse_x
+            self.dragged_spring.end[1] = mouse_y
+        self.spring_chain.update()
+
+
+
+
 
 
 
