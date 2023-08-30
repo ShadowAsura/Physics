@@ -119,6 +119,7 @@ class SpringScene(Scene):
         self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 1, 100, 0.05, SCREEN_HEIGHT)
         self.spring_ui = SpringUI(10, 10)  # Position the UI at (10, 10)
         self.dragged_spring = None  # Add this line to keep track of the dragged spring
+        
 
     def draw(self, screen):
         screen.fill(WHITE)
@@ -180,13 +181,16 @@ while running:
             running = False
         elif event.type == pygame.MOUSEMOTION:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            
             # Check if the current scene is SoftBodyScene
             if isinstance(scene_manager.current_scene, SoftBodyScene):
                 if scene_manager.current_scene.soft_body.dragging:
                     scene_manager.current_scene.soft_body.handle_mouse_move(mouse_x, mouse_y)
                 elif scene_manager.current_scene.soft_body.dragged_particle:
                     scene_manager.current_scene.soft_body.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
+            # Check if the current scene is SpringScene
+            elif isinstance(scene_manager.current_scene, SpringScene):
+                scene_manager.current_scene.handle_event(event)
+
         else:
             scene_manager.handle_event(event)
 
