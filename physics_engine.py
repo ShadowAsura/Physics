@@ -119,12 +119,32 @@ class SpringScene(Scene):
         self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 1, 100, 0.05, SCREEN_HEIGHT)
         self.spring_ui = SpringUI(10, 10)  # Position the UI at (10, 10)
         self.dragged_spring = None  # Add this line to keep track of the dragged spring
+        self.oscillation_data = []
+        self.time_elapsed = 0
+
         
 
     def draw(self, screen):
         screen.fill(WHITE)
         self.spring_chain.draw(screen)
         self.spring_ui.draw(screen)  # Draw the UI
+        # Draw the oscillation graph
+        graph_x, graph_y = SCREEN_WIDTH - 200, 50  # Top-right corner
+        pygame.draw.rect(screen, (0, 0, 0), (graph_x, graph_y, 200, 100), 1)  # Graph boundary
+        pygame.draw.line(screen, (0, 0, 0), (graph_x, graph_y + 50), (graph_x + 200, graph_y + 50))  # X-axis
+        pygame.draw.line(screen, (0, 0, 0), (graph_x, graph_y), (graph_x, graph_y + 100))  # Y-axis
+        
+        # Draw tick marks (example: every 50 units on X-axis and every 20 units on Y-axis)
+        for i in range(5):
+            pygame.draw.line(screen, (0, 0, 0), (graph_x + i * 50, graph_y + 48), (graph_x + i * 50, graph_y + 52))
+        for i in range(6):
+            pygame.draw.line(screen, (0, 0, 0), (graph_x - 2, graph_y + i * 20), (graph_x + 2, graph_y + i * 20))
+        
+        # Plot the data line
+        for i in range(1, len(self.oscillation_data)):
+            x1, y1 = self.oscillation_data[i-1]
+            x2, y2 = self.oscillation_data[i]
+            pygame.draw.line(screen, (255, 0, 0), (graph_x + x1, graph_y + 50 - y1), (graph_x + x2, graph_y + 50 - y2))
 
     def handle_event(self, event):
         self.spring_ui.handle_event(event, self.spring_chain)  # Handle UI events
@@ -146,6 +166,20 @@ class SpringScene(Scene):
             self.dragged_spring.end[0] = mouse_x
             self.dragged_spring.end[1] = mouse_y
         self.spring_chain.update()
+
+        # Oscillation Graph
+        self.time_elapsed += 0.016  # Assuming 60 FPS
+        # Update the oscillation data
+
+        first_spring = self.spring_chain.springs[0]
+        current_length = math.dist(first_spring.anchor, first_spring.end)
+        displacement = current_length - first_spring.rest_length  # Displacement from rest length
+        
+        self.oscillation_data.append((self.time_elapsed, displacement))
+        
+        # Remove old data to keep the graph within bounds (optional)
+        if len(self.oscillation_data) > 200:
+            self.oscillation_data.pop(0)
 
 
 
