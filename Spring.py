@@ -3,7 +3,7 @@ import pygame
 import pygame.gfxdraw
 
 class Spring:
-    def __init__(self, anchor_x, anchor_y, length, k, screen_height, num_coils=10):
+    def __init__(self, anchor_x, anchor_y, length, k, screen_height, num_coils=12):
         self.anchor = [anchor_x, anchor_y]
         self.screen_height = screen_height
         self.rest_length = length
@@ -42,7 +42,7 @@ class Spring:
         coil_length = current_length / self.num_coils
 
         for i in range(self.num_coils):
-            start_x = self.anchor[0] + i * (self.end[0] - self.anchor[0]) / self.num_coils
+            start_x = self.anchor[0] + i * (self.end[0] - self.anchor[0]) / self.num_coils 
             start_y = self.anchor[1] + i * (self.end[1] - self.anchor[1]) / self.num_coils
             end_x = self.anchor[0] + (i + 1) * (self.end[0] - self.anchor[0]) / self.num_coils
             end_y = self.anchor[1] + (i + 1) * (self.end[1] - self.anchor[1]) / self.num_coils
