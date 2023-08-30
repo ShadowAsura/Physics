@@ -12,7 +12,7 @@ class Spring:
         self.velocity = [0, 0]
         self.num_coils = num_coils
         self.dragging = False
-        self.GRAVITY = 0.5
+        self.GRAVITY = 0
 
     def update(self):
         if self.dragging:
