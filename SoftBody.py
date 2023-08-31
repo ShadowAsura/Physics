@@ -47,10 +47,14 @@ class SoftBody:
         return springs
 
     def update(self, dt):
-        for spring in self.springs:
-            spring.update()
+        for particle in self.particles:
+            particle.check_wall_collision(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+        for _ in range(5):
+            for spring in self.springs:
+                spring.update()
 
         for particle in self.particles:
+            particle.apply_damping()
             particle.apply_gravity()
             particle.integrate(dt)
 

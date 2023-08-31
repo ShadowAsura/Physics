@@ -15,6 +15,20 @@ class Spring:
         self.GRAVITY = 0
 
     def update(self):
+        # Collision detection with screen edges
+        if self.end[0] < 0:
+            self.end[0] = 0
+            self.velocity[0] = 0
+        elif self.end[0] > 800: #Screen width
+            self.end[0] = 800
+            self.velocity[0] = 0
+
+        if self.end[1] < 0:
+            self.end[1] = 0
+            self.velocity[1] = 0
+        elif self.end[1] > self.screen_height:
+            self.end[1] = self.screen_height
+            self.velocity[1] = 0
         if self.dragging:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.end[0] = mouse_x
@@ -35,6 +49,7 @@ class Spring:
             min_distance = 10
             if math.dist(self.anchor, self.end) < min_distance:
                 self.end = [self.anchor[0] + min_distance * math.cos(angle), self.anchor[1] + min_distance * math.sin(angle)]
+
 
     def draw(self, screen):
         angle = math.atan2(self.end[1] - self.anchor[1], self.end[0] - self.anchor[0])

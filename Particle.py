@@ -17,6 +17,15 @@ class Particle:
     def apply_force(self, force):
         self.forces += force
 
+    def apply_damping(self, damping_factor=0.01):
+        self.velocity *= (1 - damping_factor)
+
+    def check_wall_collision(self, window_width, window_height):
+        if self.position.x <= 0 or self.position.x >= window_width:
+            self.velocity.x *= -0.9  # Reflect and dampen
+        if self.position.y <= 0 or self.position.y >= window_height:
+            self.velocity.y *= -0.9  # Reflect and dampen
+
     def integrate(self, dt):
         acceleration = self.forces / self.mass
         self.velocity += acceleration * dt

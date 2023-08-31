@@ -13,7 +13,7 @@ class SpringUI:
         self.k = 0.05  # Initial value of spring constant
         self.slider_x = self.x + 50  # Initial position of the slider handle
         self.dragging_slider = False
-        self.gravity = 0  # Initial value of gravity
+        self.gravity = 9.81  # Initial value of gravity
         self.gravity_slider_x = self.x + 50  # Initial position of the gravity slider handle
         self.dragging_gravity_slider = False  # To track if the gravity slider is being dragged
 

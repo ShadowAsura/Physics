@@ -4,6 +4,7 @@ from Spring import Spring
 from SoftBody import SoftBody
 import math
 from SpringUI import SpringUI
+from PolygonObject import PolygonObject
 
 
 # Initialize pygame
@@ -63,20 +64,56 @@ class SoftBodyScene(Scene):
         super().__init__()
         # Create a soft body at the center of the screen
         self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5, SCREEN_WIDTH, SCREEN_HEIGHT)
-
+        self.user_polygons = []  # List to store user-created polygons
         self.dragged_particle = None
+        self.dragged_polygon = None  # Keep track of dragged user polygon
+        # UI Elements
+        self.button_rects = {'Add Square': pygame.Rect(10, 10, 100, 50),
+                             'Add Triangle': pygame.Rect(120, 10, 100, 50)}
+        self.slider_rect = pygame.Rect(10, 70, 200, 10)
+        self.slider_thumb_rect = pygame.Rect(10, 65, 10, 20)
+        self.slider_value = 0.5  # Initial value of the slider, range [0, 1]
+        self.mass_value = 1.0  # Initial mass value
+
     def draw(self, screen):
         screen.fill(WHITE)
         self.soft_body.render(screen)
+        for poly in self.user_polygons:
+            poly.draw(screen)
+
+        # Draw UI Elements
+        for button, rect in self.button_rects.items():
+            pygame.draw.rect(screen, (0, 128, 255), rect)
+            font = pygame.font.Font(None, 36)
+            text_surf = font.render(button, True, (0, 0, 0))
+            screen.blit(text_surf, rect.move(10, 10))
+        
+        # Draw Slider
+        pygame.draw.rect(screen, (0, 128, 255), self.slider_rect)
+        pygame.draw.rect(screen, (255, 0, 0), self.slider_thumb_rect)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            
+            mouse_vec = pygame.Vector2(mouse_x, mouse_y)
             # Check if mouse is near the center of mass
             center_of_mass = self.soft_body.compute_center_of_mass()
             distance_to_com = center_of_mass.distance_to(pygame.Vector2(mouse_x, mouse_y))
-            
+            for poly in self.user_polygons:
+                if poly.is_point_inside(mouse_vec):
+                    self.dragged_polygon = poly
+                    break
+            # Check if a UI button was clicked
+            for button, rect in self.button_rects.items():
+                if rect.collidepoint(mouse_x, mouse_y):
+                    if button == 'Add Square':
+                        self.add_square(mouse_x, mouse_y)
+                    elif button == 'Add Triangle':
+                        self.add_triangle(mouse_x, mouse_y)
+            # Check if the slider thumb was clicked
+            if self.slider_thumb_rect.collidepoint(mouse_x, mouse_y):
+                self.dragging_slider = True
+
             if distance_to_com < 20:  # Adjust this threshold as needed
                 self.soft_body.dragging = True
                 self.soft_body.drag_offset = pygame.Vector2(mouse_x, mouse_y) - center_of_mass
@@ -91,9 +128,25 @@ class SoftBodyScene(Scene):
         elif event.type == pygame.MOUSEBUTTONUP:
             self.soft_body.dragging = False
             self.dragged_particle = None
-
+            self.dragging_slider = False
+            self.dragged_polygon = None
         elif event.type == pygame.MOUSEMOTION:
             mouse_x, mouse_y = pygame.mouse.get_pos()
+            # Dragging the slider thumb
+            if self.dragging_slider:
+                self.slider_value = (mouse_x - self.slider_rect.left) / self.slider_rect.width
+                self.slider_value = max(0, min(1, self.slider_value))  # Clamp between 0 and 1
+                self.slider_thumb_rect.x = self.slider_rect.x + self.slider_value * self.slider_rect.width - self.slider_thumb_rect.width // 2
+                
+                # Update particle mass based on slider value
+                self.mass_value = self.slider_value * 10  # Assume max mass is 10
+                for particle in self.soft_body.particles:
+                    particle.mass = self.mass_value
+            if self.dragged_polygon:
+                # Drag the entire polygon by translating all its vertices
+                translation_vector = pygame.Vector2(mouse_x, mouse_y) - self.dragged_polygon.vertices[0]
+                for vertex in self.dragged_polygon.vertices:
+                    vertex += translation_vector
             if self.soft_body.dragging:
                 self.soft_body.handle_mouse_move(mouse_x, mouse_y)
             elif self.dragged_particle:
@@ -113,73 +166,113 @@ class SoftBodyScene(Scene):
             particle.apply_gravity()
             particle.integrate(0.01667)
 
+    def add_square(self, x, y):
+        # Add a square polygon centered at (x, y)
+        square = PolygonObject([pygame.Vector2(x-20, y-20),
+                                pygame.Vector2(x+20, y-20),
+                                pygame.Vector2(x+20, y+20),
+                                pygame.Vector2(x-20, y+20)])
+        self.user_polygons.append(square)
+
+    def add_triangle(self, x, y):
+        # Add a triangle polygon centered at (x, y)
+        triangle = PolygonObject([pygame.Vector2(x-20, y+20),
+                                  pygame.Vector2(x+20, y+20),
+                                  pygame.Vector2(x, y-20)])
+        self.user_polygons.append(triangle)
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()
         self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 1, 100, 0.05, SCREEN_HEIGHT)
-        self.spring_ui = SpringUI(10, 10)  # Position the UI at (10, 10)
-        self.dragged_spring = None  # Add this line to keep track of the dragged spring
+        self.spring_ui = SpringUI(10, 10)
+        self.dragged_spring = None
         self.oscillation_data = []
-        self.time_elapsed = 0
+        self.time_elapsed = 0  # Add this line to keep track of time
+        self.amplitude = 50  # Amplitude of oscillation
+        self.mass = 1  # Mass attached to the spring
+        self.min_displacement = float('inf')
+        self.max_displacement = float('-inf')
+        self.simple_harmonic_mode = False
+        self.shm_button = pygame.Rect(10, 200, 100, 40)  # x, y, width, height
+        self.velocity = 0.0
+        self.graph_width = 200
+        self.omega = 0
 
-        
 
     def draw(self, screen):
         screen.fill(WHITE)
         self.spring_chain.draw(screen)
-        self.spring_ui.draw(screen)  # Draw the UI
-        # Draw the oscillation graph
-        graph_x, graph_y = SCREEN_WIDTH - 200, 50  # Top-right corner
-        pygame.draw.rect(screen, (0, 0, 0), (graph_x, graph_y, 200, 100), 1)  # Graph boundary
-        pygame.draw.line(screen, (0, 0, 0), (graph_x, graph_y + 50), (graph_x + 200, graph_y + 50))  # X-axis
-        pygame.draw.line(screen, (0, 0, 0), (graph_x, graph_y), (graph_x, graph_y + 100))  # Y-axis
+        self.spring_ui.draw(screen)
+
+        pygame.draw.rect(screen, (0, 128, 255), self.shm_button)
+        font = pygame.font.SysFont(None, 24)
+        button_text = font.render("Toggle SHM", True, (255, 255, 255))
         
-        # Draw tick marks (example: every 50 units on X-axis and every 20 units on Y-axis)
-        for i in range(5):
-            pygame.draw.line(screen, (0, 0, 0), (graph_x + i * 50, graph_y + 48), (graph_x + i * 50, graph_y + 52))
-        for i in range(6):
-            pygame.draw.line(screen, (0, 0, 0), (graph_x - 2, graph_y + i * 20), (graph_x + 2, graph_y + i * 20))
         
-        # Plot the data line
-        for i in range(1, len(self.oscillation_data)):
-            x1, y1 = self.oscillation_data[i-1]
-            x2, y2 = self.oscillation_data[i]
-            pygame.draw.line(screen, (255, 0, 0), (graph_x + x1, graph_y + 50 - y1), (graph_x + x2, graph_y + 50 - y2))
+        # Calculate the position to center the text
+        text_rect = button_text.get_rect(center=self.shm_button.center)
+        
+        screen.blit(button_text, text_rect)
+
+        graph_x, graph_y = SCREEN_WIDTH - self.graph_width, 50
+        graph_height = 100
+
+        pygame.draw.rect(screen, (0, 0, 0), (graph_x, graph_y, self.graph_width, graph_height), 1)
+        pygame.draw.line(screen, (0, 0, 0), (graph_x, graph_y + graph_height // 2), (graph_x + self.graph_width, graph_y + graph_height // 2))
+
+        if self.min_displacement != self.max_displacement:
+            for i in range(1, len(self.oscillation_data)):
+                x1, y1 = self.oscillation_data[i-1]
+                x2, y2 = self.oscillation_data[i]
+
+                y1_scaled = ((y1 - self.min_displacement) / (self.max_displacement - self.min_displacement)) * graph_height
+                y2_scaled = ((y2 - self.min_displacement) / (self.max_displacement - self.min_displacement)) * graph_height
+
+                pygame.draw.line(screen, (255, 0, 0), (graph_x + x1, graph_y + y1_scaled), (graph_x + x2, graph_y + y2_scaled))
 
     def handle_event(self, event):
-        self.spring_ui.handle_event(event, self.spring_chain)  # Handle UI events
+        self.spring_ui.handle_event(event, self.spring_chain)
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            for spring in self.spring_chain.springs:
-                if math.sqrt((mouse_x - spring.end[0])**2 + (mouse_y - spring.end[1])**2) < 20:
-                    spring.dragging = True
-                    self.dragged_spring = spring
-                    break
+            if self.shm_button.collidepoint(mouse_x, mouse_y):
+                self.simple_harmonic_mode = not self.simple_harmonic_mode
+            else:
+                for spring in self.spring_chain.springs:
+                    if math.sqrt((mouse_x - spring.end[0]) ** 2 + (mouse_y - spring.end[1]) ** 2) < 20:
+                        spring.dragging = True
+                        self.dragged_spring = spring
+                        break
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.dragged_spring:
                 self.dragged_spring.dragging = False
                 self.dragged_spring = None
 
     def update(self):
-        if self.dragged_spring and self.dragged_spring.dragging:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.dragged_spring.end[0] = mouse_x
-            self.dragged_spring.end[1] = mouse_y
+        self.time_elapsed += 0.016  # Assuming 60 FPS, so dt is approximately 0.016
+        if self.simple_harmonic_mode:
+            first_spring = self.spring_chain.springs[0]
+            self.omega = math.sqrt(first_spring.k / self.mass)  # Update angular frequency
+            new_y_position = first_spring.anchor[1] + first_spring.rest_length + self.amplitude * math.sin(self.omega * self.time_elapsed)
+            first_spring.end[1] = new_y_position
+        else:
+            if self.dragged_spring and self.dragged_spring.dragging:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                self.dragged_spring.end[0] = mouse_x
+                self.dragged_spring.end[1] = mouse_y
         self.spring_chain.update()
-
-        # Oscillation Graph
-        self.time_elapsed += 0.016  # Assuming 60 FPS
-        # Update the oscillation data
 
         first_spring = self.spring_chain.springs[0]
         current_length = math.dist(first_spring.anchor, first_spring.end)
-        displacement = current_length - first_spring.rest_length  # Displacement from rest length
+        displacement = current_length - first_spring.rest_length
+
+        self.min_displacement = min(self.min_displacement, displacement)
+        self.max_displacement = max(self.max_displacement, displacement)
+
+        self.oscillation_data.append((self.graph_width, displacement))
+        self.oscillation_data = [(x - 1, y) for x, y in self.oscillation_data]
+        self.oscillation_data = [(x, y) for x, y in self.oscillation_data if x >= 0]
+
         
-        self.oscillation_data.append((self.time_elapsed, displacement))
-        
-        # Remove old data to keep the graph within bounds (optional)
-        if len(self.oscillation_data) > 200:
-            self.oscillation_data.pop(0)
 
 
 
