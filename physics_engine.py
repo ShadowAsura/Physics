@@ -238,6 +238,8 @@ class SpringScene(Scene):
         self.velocity = 0.0
         self.graph_width = 200
         self.omega = 0
+        self.pulled = False
+        self.released = False
 
 
     def draw(self, screen):
@@ -277,6 +279,7 @@ class SpringScene(Scene):
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if self.shm_button.collidepoint(mouse_x, mouse_y):
                 self.simple_harmonic_mode = not self.simple_harmonic_mode
+
             else:
                 for spring in self.spring_chain.springs:
                     if math.sqrt((mouse_x - spring.end[0]) ** 2 + (mouse_y - spring.end[1]) ** 2) < 20:
@@ -287,20 +290,47 @@ class SpringScene(Scene):
             if self.dragged_spring:
                 self.dragged_spring.dragging = False
                 self.dragged_spring = None
+                self.released = True  # Now the spring is released and will oscillate
+                self.pulled = False  # Spring is no longer being pulled
+
 
     def update(self):
         self.time_elapsed += 0.016  # Assuming 60 FPS, so dt is approximately 0.016
+
+        last_spring = self.spring_chain.springs[-1]
+        k = last_spring.k
+        m = self.mass  # mass attached to the spring
+        omega = math.sqrt(k / m)
+
         if self.simple_harmonic_mode:
-            first_spring = self.spring_chain.springs[0]
-            self.omega = math.sqrt(first_spring.k / self.mass)  # Update angular frequency
-            new_y_position = first_spring.anchor[1] + first_spring.rest_length + self.amplitude * math.sin(self.omega * self.time_elapsed)
-            first_spring.end[1] = new_y_position
+            if self.released:
+                # Calculate displacement from equilibrium
+                displacement = last_spring.end[1] - last_spring.anchor[1]
+
+                # Calculate acceleration due to Hooke's Law (a = -omega^2 * x)
+                acceleration = -omega * omega * displacement
+
+                # Update velocity
+                self.velocity += acceleration * 0.016  # dt is 0.016
+
+                # Update position based on velocity
+                last_spring.end[1] += self.velocity * 0.016  # dt is 0.016
+
+            elif self.pulled and not self.released:
+                self.released = True  # The spring has been released, SHM starts
+                self.velocity = 0  # Reset velocity for a new pull
+
         else:
-            if self.dragged_spring and self.dragged_spring.dragging:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                self.dragged_spring.end[0] = mouse_x
-                self.dragged_spring.end[1] = mouse_y
-        self.spring_chain.update()
+            # Reset these flags and values when not in SHM mode
+            self.released = False
+            self.pulled = False
+            self.velocity = 0
+
+            # Normal update logic for the spring chain
+            self.spring_chain.update()
+
+
+
 
         first_spring = self.spring_chain.springs[0]
         current_length = math.dist(first_spring.anchor, first_spring.end)
@@ -313,7 +343,7 @@ class SpringScene(Scene):
         self.oscillation_data = [(x - 1, y) for x, y in self.oscillation_data]
         self.oscillation_data = [(x, y) for x, y in self.oscillation_data if x >= 0]
 
-        
+            
 
 
 
@@ -357,7 +387,8 @@ while running:
                     scene_manager.current_scene.soft_body.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
             # Check if the current scene is SpringScene
             elif isinstance(scene_manager.current_scene, SpringScene):
-                scene_manager.current_scene.handle_event(event)
+                    scene_manager.current_scene.handle_event(event)
+                    scene_manager.current_scene.update()
 
         else:
             scene_manager.handle_event(event)
