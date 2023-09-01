@@ -49,5 +49,5 @@ class Particle:
             self.velocity.y *= -1
 
     def apply_gravity(self):
-        GRAVITY = pygame.Vector2(0, 0.5)
+        GRAVITY = pygame.Vector2(0, 9.8)
         self.forces += GRAVITY * self.mass

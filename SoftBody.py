@@ -17,7 +17,7 @@ class SoftBody:
         self.spring_stiffness = spring_stiffness
 
         self.drag_force_multiplier = 20.0  # Adjust as needed
-        self.restoring_force_multiplier = 0.5  # Adjust as needed
+        self.restoring_force_multiplier = 1  # Adjust as needed
         self.initial_positions = [particle.position.copy() for particle in self.particles]
 
         self.shake_duration = 0  # Duration for which the shaking effect should last
