@@ -32,7 +32,7 @@ python3 physics_engine.py
 
 ### Planned Features
 
-- **Rigid Body Dynamics**: Simulate the motion of solid objects.
+- **Suspension Systens**: Simulate the motion of spring suspensions.
 - **Fluid Dynamics**: Visualize the flow and behavior of liquids.
 - **Particle Systems**: Create and interact with systems of small particles.
 
@@ -40,7 +40,7 @@ python3 physics_engine.py
 
 - **Spring Chain Interaction**: Users can now interact with each spring in the chain.
   **Pendulum Interaction**: Users can now interact with a Pendulum on an elastic rope.
-- **Base UI**: Switch between scenes and tweak parameters seamlessly.
+- **Fluid System**: Interactable fluid system.
 
 ## Contributing
 
