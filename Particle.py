@@ -14,6 +14,7 @@ class Particle:
         self.SCREEN_WIDTH = screen_width
         self.SCREEN_HEIGHT = screen_height
 
+
     def apply_force(self, force):
         self.forces += force
 

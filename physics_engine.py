@@ -117,21 +117,21 @@ class SoftBodyScene(Scene):
         self.mass_value = 1.0  # Initial mass value
 
     def draw(self, screen):
-        screen.fill(WHITE)
+        screen.fill((255, 255, 255))
         self.soft_body.render(screen)
+        
         for poly in self.user_polygons:
             poly.draw(screen)
-
-        # Draw UI Elements
+        
+        font = pygame.font.Font(None, 24)  # Changed font size to 24
         for button, rect in self.button_rects.items():
             pygame.draw.rect(screen, (0, 128, 255), rect)
-            font = pygame.font.Font(None, 36)
             text_surf = font.render(button, True, (0, 0, 0))
-            screen.blit(text_surf, rect.move(10, 10))
-        
-        # Draw Slider
-        pygame.draw.rect(screen, (0, 128, 255), self.slider_rect)
-        pygame.draw.rect(screen, (255, 0, 0), self.slider_thumb_rect)
+            
+            # Calculate text position to center it in the button
+            text_x = rect.x + (rect.width - text_surf.get_width()) // 2
+            text_y = rect.y + (rect.height - text_surf.get_height()) // 2
+            screen.blit(text_surf, (text_x, text_y))
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -147,10 +147,15 @@ class SoftBodyScene(Scene):
             # Check if a UI button was clicked
             for button, rect in self.button_rects.items():
                 if rect.collidepoint(mouse_x, mouse_y):
+                    center_x = SCREEN_WIDTH // 2
+                    center_y = SCREEN_HEIGHT // 2
+
                     if button == 'Add Square':
-                        self.add_square(mouse_x, mouse_y)
+                        self.add_square(center_x, center_y)
                     elif button == 'Add Triangle':
-                        self.add_triangle(mouse_x, mouse_y)
+                        self.add_triangle(center_x, center_y)
+
+
             # Check if the slider thumb was clicked
             if self.slider_thumb_rect.collidepoint(mouse_x, mouse_y):
                 self.dragging_slider = True
@@ -206,7 +211,11 @@ class SoftBodyScene(Scene):
         for particle in self.soft_body.particles:
             particle.apply_gravity()
             particle.integrate(0.01667)
-
+        for poly in self.user_polygons:
+            for particle in self.soft_body.particles:
+                if poly.is_point_inside(particle.position):
+                    # Apply a simple repulsion force by reversing the velocity
+                    particle.velocity *= -1 
     def add_square(self, x, y):
         # Add a square polygon centered at (x, y)
         square = PolygonObject([pygame.Vector2(x-20, y-20),
@@ -221,6 +230,8 @@ class SoftBodyScene(Scene):
                                   pygame.Vector2(x+20, y+20),
                                   pygame.Vector2(x, y-20)])
         self.user_polygons.append(triangle)
+
+
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()
@@ -381,6 +392,12 @@ while running:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             # Check if the current scene is SoftBodyScene
             if isinstance(scene_manager.current_scene, SoftBodyScene):
+                events = pygame.event.get()
+                for event in events:
+                    if event.type == pygame.QUIT:
+                        running = False
+                for poly in scene_manager.current_scene.user_polygons:  # replace 'user_polygons' with your actual list of PolygonObject instances
+                    poly.handle_interaction(events)
                 if scene_manager.current_scene.soft_body.dragging:
                     scene_manager.current_scene.soft_body.handle_mouse_move(mouse_x, mouse_y)
                 elif scene_manager.current_scene.soft_body.dragged_particle:
