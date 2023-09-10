@@ -60,7 +60,7 @@ while running:
                     scene_manager.current_scene.update()
 
         else:
-            scene_manager.handle_event(event)
+            scene_manager.handle_event(event, scene_manager)
 
 
     scene_manager.update()

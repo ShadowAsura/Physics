@@ -4,6 +4,7 @@ from .SceneManager import SceneManager
 from .FluidScene import FluidScene
 from .SoftBodyScene import SoftBodyScene
 from .SpringScene import SpringScene
+
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
