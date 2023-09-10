@@ -1,3 +1,8 @@
+import pygame
+import math
+from .Scene import Scene
+
+
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()

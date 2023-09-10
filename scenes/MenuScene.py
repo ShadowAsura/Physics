@@ -1,5 +1,13 @@
 import pygame
-from . import Scene
+from .Scene import Scene
+
+# Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 class MainMenuScene(Scene):
     def __init__(self):

@@ -14,7 +14,9 @@ from engine import FluidParticle
 
 from scenes.SceneManager import SceneManager
 from scenes.MenuScene import MainMenuScene
-
+from scenes.SoftBodyScene import SoftBodyScene
+from scenes.SpringScene import SpringScene
+from scenes.FluidScene import FluidScene
 
 # Initialize pygame
 pygame.init()

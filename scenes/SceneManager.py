@@ -1,3 +1,6 @@
+import pygame
+from .MenuScene import MainMenuScene
+
 class SceneManager:
     def __init__(self):
         self.current_scene = MainMenuScene()
