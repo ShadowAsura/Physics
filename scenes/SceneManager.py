@@ -1,8 +1,9 @@
 import pygame
-from .MenuScene import MainMenuScene
+
 
 class SceneManager:
     def __init__(self):
+        from .MenuScene import MainMenuScene
         self.current_scene = MainMenuScene()
 
     def switch_to_scene(self, new_scene):
@@ -15,4 +16,4 @@ class SceneManager:
         self.current_scene.draw(screen)
 
     def handle_event(self, event):
-        self.current_scene.handle_event(event)
+        self.current_scene.handle_event(event, self)

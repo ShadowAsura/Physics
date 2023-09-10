@@ -1,6 +1,6 @@
 import pygame
 from .Scene import Scene
-
+from .SceneManager import SceneManager
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -12,6 +12,7 @@ BLACK = (0, 0, 0)
 class MainMenuScene(Scene):
     def __init__(self):
         super().__init__()
+        self.scene_manager = scene_manager
         self.font = pygame.font.SysFont(None, 55)
         self.options = ["SoftBody", "Spring", "Fluid"]
         self.buttons = [self.font.render(option, True, BLACK) for option in self.options]
@@ -21,7 +22,7 @@ class MainMenuScene(Scene):
         for index, button in enumerate(self.buttons):
             screen.blit(button, (SCREEN_WIDTH // 2 - button.get_width() // 2, 150 + index * 60))
 
-    def handle_event(self, event):
+    def handle_event(self, event, scene_manager):
         if event.type == pygame.MOUSEBUTTONDOWN:
             print("Mouse button down event captured in SoftBodyScene!")  # Debugging print statement
             mouse_x, mouse_y = pygame.mouse.get_pos()
