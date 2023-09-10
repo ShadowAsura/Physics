@@ -4,6 +4,14 @@ from engine.FluidParticle import FluidParticle
 
 from .Scene import Scene
 
+# Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
 class FluidScene(Scene):
     def __init__(self):
         super().__init__()

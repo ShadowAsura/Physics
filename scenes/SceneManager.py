@@ -7,6 +7,7 @@ class SceneManager:
         self.current_scene = MainMenuScene(self)
 
     def switch_to_scene(self, new_scene):
+
         self.current_scene = new_scene
 
     def update(self):
@@ -15,5 +16,5 @@ class SceneManager:
     def draw(self, screen):
         self.current_scene.draw(screen)
 
-    def handle_event(self, event):
+    def handle_event(self, event, scene_manager):
         self.current_scene.handle_event(event, self)
