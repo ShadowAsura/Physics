@@ -10,7 +10,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 class MainMenuScene(Scene):
-    def __init__(self):
+    def __init__(self, scene_manager):
         super().__init__()
         self.scene_manager = scene_manager
         self.font = pygame.font.SysFont(None, 55)

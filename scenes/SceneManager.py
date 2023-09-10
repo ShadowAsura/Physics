@@ -4,7 +4,7 @@ import pygame
 class SceneManager:
     def __init__(self):
         from .MenuScene import MainMenuScene
-        self.current_scene = MainMenuScene()
+        self.current_scene = MainMenuScene(self)
 
     def switch_to_scene(self, new_scene):
         self.current_scene = new_scene
