@@ -1,4 +1,5 @@
 import pygame
+from . import Scene
 
 class MainMenuScene(Scene):
     def __init__(self):

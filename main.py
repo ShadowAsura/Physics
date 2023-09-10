@@ -1,12 +1,20 @@
 import pygame
+
 from engine import SpringChain
 from engine import Spring
+
 from engine import SoftBody
 import math
+
+
 from ui import SpringUI
+
 from engine import PolygonObject
 from engine import FluidParticle
-from scenes import SceneManager
+
+from scenes.SceneManager import SceneManager
+from scenes.MenuScene import MainMenuScene
+
 
 # Initialize pygame
 pygame.init()

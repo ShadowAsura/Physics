@@ -2,6 +2,7 @@ import pygame
 import math
 from ..engine import FluidParticle
 
+from . import Scene
 
 class FluidScene(Scene):
     def __init__(self):
