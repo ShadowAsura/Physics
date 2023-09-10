@@ -1,6 +1,6 @@
 import math
 import pygame
-from Spring import Spring
+from . import Spring
 
 
 class SpringChain:
