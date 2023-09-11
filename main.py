@@ -56,7 +56,7 @@ while running:
                     scene_manager.current_scene.soft_body.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
             # Check if the current scene is SpringScene
             elif isinstance(scene_manager.current_scene, SpringScene):
-                    scene_manager.current_scene.handle_event(event)
+                    scene_manager.current_scene.handle_event(event, scene_manager)
                     scene_manager.current_scene.update()
 
         else:
