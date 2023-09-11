@@ -1,7 +1,6 @@
 import math
 import pygame
 import pygame.gfxdraw
-import numpy as np
 
 class Spring:
     def __init__(self, anchor_x, anchor_y, length, k, screen_height, num_coils=12):
