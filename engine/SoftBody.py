@@ -1,7 +1,7 @@
 import pygame
 import math
-from . import Particle
-from . import SoftSpring
+from .Particle import Particle
+from .SoftSpring import SoftSpring
 
 
 class SoftBody:

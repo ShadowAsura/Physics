@@ -1,7 +1,7 @@
 import pygame
 import math
 from engine.FluidParticle import FluidParticle
-
+from engine.Spring import Spring
 
 
 class SpringUI:

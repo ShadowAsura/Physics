@@ -1,6 +1,7 @@
 import pygame
 import math
 from .Scene import Scene
+from engine.SoftBody import SoftBody
 
 # Constants
 SCREEN_WIDTH = 800
@@ -44,7 +45,7 @@ class SoftBodyScene(Scene):
             text_y = rect.y + (rect.height - text_surf.get_height()) // 2
             screen.blit(text_surf, (text_x, text_y))
 
-    def handle_event(self, event):
+    def handle_event(self, event, scene_manager):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             mouse_vec = pygame.Vector2(mouse_x, mouse_y)
