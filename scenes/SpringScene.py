@@ -1,6 +1,7 @@
 import pygame
 import math
 from .Scene import Scene
+from engine.SpringChain import SpringChain
 
 # Constants
 SCREEN_WIDTH = 800
