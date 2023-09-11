@@ -2,6 +2,7 @@ import pygame
 import math
 from .Scene import Scene
 from engine.SpringChain import SpringChain
+from ui.SpringUI import SpringUI
 
 # Constants
 SCREEN_WIDTH = 800
@@ -64,7 +65,7 @@ class SpringScene(Scene):
 
                 pygame.draw.line(screen, (255, 0, 0), (graph_x + x1, graph_y + y1_scaled), (graph_x + x2, graph_y + y2_scaled))
 
-    def handle_event(self, event):
+    def handle_event(self, event, scene_manager):
         self.spring_ui.handle_event(event, self.spring_chain)
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
