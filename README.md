@@ -20,7 +20,7 @@ git clone https://github.com/ShadowAsura/Physics.git
 2. Run the main script:
 
 ```
-python3 physics_engine.py
+python3 main.py
 ```
 
 ## Usage
@@ -33,8 +33,8 @@ python3 physics_engine.py
 ### Planned Features
 
 - **Suspension Systens**: Simulate the motion of spring suspensions.
-- **Fluid Dynamics**: Visualize the flow and behavior of liquids.
-- **Particle Systems**: Create and interact with systems of small particles.
+- **Rotational Motion**: Interact with systems under rotational or simple harmonic motion.
+- **Soft Bodies**: Create and interact with systems of interconnected particles.
 
 ### Updated Features
 
@@ -44,7 +44,7 @@ python3 physics_engine.py
 
 ## Contributing
 
-DM me of Discord asurazu or Note#4161
+DM me of Discord asurazu or Note#4161 or just like pull request lol.
 
 ## License
 
