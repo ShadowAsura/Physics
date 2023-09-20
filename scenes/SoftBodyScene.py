@@ -2,6 +2,7 @@ import pygame
 import math
 from .Scene import Scene
 from engine.SoftBody import SoftBody
+from engine.PolygonObject import PolygonObject
 
 # Constants
 SCREEN_WIDTH = 800

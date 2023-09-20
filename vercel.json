@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "Physics",
+  "builds": [
+    {
+      "src": "build/web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/build/web/$1"
+    }
+  ]
+}
