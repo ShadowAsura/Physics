@@ -51,7 +51,7 @@ class SpringUI:
         screen.blit(gravity_label, (self.x, self.y + 160))
 
 
-    def handle_event(self, event, spring_chain):
+    def handle_event(self, event, spring_chain, scene_manager):
         # Define mouse_x and mouse_y at the beginning of the method
         mouse_x, mouse_y = pygame.mouse.get_pos()
 

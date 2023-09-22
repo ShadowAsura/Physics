@@ -4,6 +4,7 @@ from .Scene import Scene
 from engine.SpringChain import SpringChain
 from ui.SpringUI import SpringUI
 
+
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -18,6 +19,8 @@ class SpringScene(Scene):
         super().__init__()
         self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 1, 100, 0.05, SCREEN_HEIGHT)
         self.spring_ui = SpringUI(10, 10)
+        self.right_arrow_rect = pygame.Rect(740, 540, 40, 20)
+        self.left_arrow_rect = pygame.Rect(690, 540, 40, 20)
         self.dragged_spring = None
         self.oscillation_data = []
         self.time_elapsed = 0  # Add this line to keep track of time
@@ -42,6 +45,20 @@ class SpringScene(Scene):
         pygame.draw.rect(screen, (0, 128, 255), self.shm_button)
         font = pygame.font.SysFont(None, 24)
         button_text = font.render("Toggle SHM", True, (255, 255, 255))
+
+        # Drawing Right Arrow Button
+        pygame.draw.polygon(screen, (0, 0, 0), [
+            (self.right_arrow_rect.x, self.right_arrow_rect.y),
+            (self.right_arrow_rect.x + self.right_arrow_rect.width, self.right_arrow_rect.y + self.right_arrow_rect.height // 2),
+            (self.right_arrow_rect.x, self.right_arrow_rect.y + self.right_arrow_rect.height)
+        ])
+        
+        # Drawing Left Arrow Button
+        pygame.draw.polygon(screen, (0, 0, 0), [
+            (self.left_arrow_rect.x + self.left_arrow_rect.width, self.left_arrow_rect.y),
+            (self.left_arrow_rect.x, self.left_arrow_rect.y + self.left_arrow_rect.height // 2),
+            (self.left_arrow_rect.x + self.left_arrow_rect.width, self.left_arrow_rect.y + self.left_arrow_rect.height)
+        ])
         
         
         # Calculate the position to center the text
@@ -66,12 +83,17 @@ class SpringScene(Scene):
                 pygame.draw.line(screen, (255, 0, 0), (graph_x + x1, graph_y + y1_scaled), (graph_x + x2, graph_y + y2_scaled))
 
     def handle_event(self, event, scene_manager):
-        self.spring_ui.handle_event(event, self.spring_chain)
+        self.spring_ui.handle_event(event, self.spring_chain, scene_manager)
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if self.shm_button.collidepoint(mouse_x, mouse_y):
                 self.simple_harmonic_mode = not self.simple_harmonic_mode
-
+            elif self.right_arrow_rect.collidepoint(mouse_x, mouse_y):
+                from .FluidScene import FluidScene  # Import here instead of at the top of the file
+                scene_manager.switch_to_scene(FluidScene())
+            elif self.left_arrow_rect.collidepoint(mouse_x, mouse_y):
+                from .SoftBodyScene import SoftBodyScene  # Import here instead of at the top of the file
+                scene_manager.switch_to_scene(SoftBodyScene())
             else:
                 for spring in self.spring_chain.springs:
                     if math.sqrt((mouse_x - spring.end[0]) ** 2 + (mouse_y - spring.end[1]) ** 2) < 20:

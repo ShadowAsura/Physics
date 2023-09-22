@@ -28,16 +28,16 @@ class MainMenuScene(Scene):
 
     def handle_event(self, event, scene_manager):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            print("Mouse button down event captured in SoftBodyScene!")  # Debugging print statement
+            print("Mouse button down event captured in MainMenuScene!")  # Debugging print statement
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for index, button in enumerate(self.buttons):
                 button_rect = button.get_rect(topleft=(SCREEN_WIDTH // 2 - button.get_width() // 2, 150 + index * 60))
                 if button_rect.collidepoint(mouse_x, mouse_y):
                     # Switch to the corresponding scene
                     if self.options[index] == "Fluid":
-                        scene_manager.switch_to_scene(FluidScene())
+                        self.scene_manager.switch_to_scene(FluidScene())
                     elif self.options[index] == "SoftBody":
-                        scene_manager.switch_to_scene(SoftBodyScene())
-                    if self.options[index] == "Spring":
-                        scene_manager.switch_to_scene(SpringScene())
+                        self.scene_manager.switch_to_scene(SoftBodyScene())
+                    elif self.options[index] == "Spring":  # Fix the conditional check here
+                        self.scene_manager.switch_to_scene(SpringScene())
                     # Add other scenes as needed
