@@ -18,8 +18,8 @@ class SoftBodyScene(Scene):
     def __init__(self):
         super().__init__()
         # Create a soft body at the center of the screen
-        self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.user_polygons = []  # List to store user-created polygons
+        self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5, self.user_polygons, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.dragged_particle = None
         self.dragged_polygon = None  # Keep track of dragged user polygon
         self.right_arrow_rect = pygame.Rect(740, 540, 40, 20)
