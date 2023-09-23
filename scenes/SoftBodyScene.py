@@ -64,6 +64,7 @@ class SoftBodyScene(Scene):
             screen.blit(text_surf, (text_x, text_y))
 
     def handle_event(self, event, scene_manager):
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             mouse_vec = pygame.Vector2(mouse_x, mouse_y)
@@ -124,6 +125,7 @@ class SoftBodyScene(Scene):
                 self.mass_value = self.slider_value * 10  # Assume max mass is 10
                 for particle in self.soft_body.particles:
                     particle.mass = self.mass_value
+
             if self.dragged_polygon:
                 # Drag the entire polygon by translating all its vertices
                 translation_vector = pygame.Vector2(mouse_x, mouse_y) - self.dragged_polygon.vertices[0]
@@ -138,11 +140,10 @@ class SoftBodyScene(Scene):
 
     def update(self):
         if self.dragged_particle:
-            print("Dragging a particle!")  # Debugging print statement
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
         elif self.soft_body.dragging:
-            print("Dragging the center of mass!")  # Debugging print statement
+            pass
         self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
         for particle in self.soft_body.particles:
             particle.apply_gravity()
