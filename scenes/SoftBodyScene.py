@@ -22,6 +22,8 @@ class SoftBodyScene(Scene):
         self.user_polygons = []  # List to store user-created polygons
         self.dragged_particle = None
         self.dragged_polygon = None  # Keep track of dragged user polygon
+        self.right_arrow_rect = pygame.Rect(740, 540, 40, 20)
+        self.left_arrow_rect = pygame.Rect(690, 540, 40, 20)
         # UI Elements
         self.button_rects = {'Add Square': pygame.Rect(10, 10, 100, 50),
                              'Add Triangle': pygame.Rect(120, 10, 100, 50)}
@@ -33,6 +35,20 @@ class SoftBodyScene(Scene):
     def draw(self, screen):
         screen.fill((255, 255, 255))
         self.soft_body.render(screen)
+
+        # Drawing Right Arrow Button
+        pygame.draw.polygon(screen, (0, 0, 0), [
+            (self.right_arrow_rect.x, self.right_arrow_rect.y),
+            (self.right_arrow_rect.x + self.right_arrow_rect.width, self.right_arrow_rect.y + self.right_arrow_rect.height // 2),
+            (self.right_arrow_rect.x, self.right_arrow_rect.y + self.right_arrow_rect.height)
+        ])
+        
+        # Drawing Left Arrow Button
+        pygame.draw.polygon(screen, (0, 0, 0), [
+            (self.left_arrow_rect.x + self.left_arrow_rect.width, self.left_arrow_rect.y),
+            (self.left_arrow_rect.x, self.left_arrow_rect.y + self.left_arrow_rect.height // 2),
+            (self.left_arrow_rect.x + self.left_arrow_rect.width, self.left_arrow_rect.y + self.left_arrow_rect.height)
+        ])
         
         for poly in self.user_polygons:
             poly.draw(screen)
@@ -54,6 +70,12 @@ class SoftBodyScene(Scene):
             # Check if mouse is near the center of mass
             center_of_mass = self.soft_body.compute_center_of_mass()
             distance_to_com = center_of_mass.distance_to(pygame.Vector2(mouse_x, mouse_y))
+            if self.right_arrow_rect.collidepoint(mouse_x, mouse_y):
+                from .SpringScene import SpringScene  # Import here instead of at the top of the file
+                scene_manager.switch_to_scene(SpringScene())
+            elif self.left_arrow_rect.collidepoint(mouse_x, mouse_y):
+                from .FluidScene import FluidScene  # Import here instead of at the top of the file
+                scene_manager.switch_to_scene(FluidScene())
             for poly in self.user_polygons:
                 if poly.is_point_inside(mouse_vec):
                     self.dragged_polygon = poly
