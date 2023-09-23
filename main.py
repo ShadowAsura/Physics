@@ -14,9 +14,11 @@ from engine import FluidParticle
 
 from scenes.SceneManager import SceneManager
 from scenes.MenuScene import MainMenuScene
+
 from scenes.SoftBodyScene import SoftBodyScene
 from scenes.SpringScene import SpringScene
 from scenes.FluidScene import FluidScene
+from scenes.PendulumScene import PendulumScene
 
 # Initialize pygame
 pygame.init()
@@ -31,7 +33,7 @@ BLACK = (0, 0, 0)
 
 
 # Main loop
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((800, 600), pygame.SRCALPHA)
 pygame.display.set_caption("Physics Engine")
 scene_manager = SceneManager()
 clock = pygame.time.Clock()

@@ -4,6 +4,7 @@ from .SceneManager import SceneManager
 from .FluidScene import FluidScene
 from .SoftBodyScene import SoftBodyScene
 from .SpringScene import SpringScene
+from .PendulumScene import PendulumScene
 
 # Constants
 SCREEN_WIDTH = 800
@@ -18,7 +19,7 @@ class MainMenuScene(Scene):
         super().__init__()
         self.scene_manager = scene_manager
         self.font = pygame.font.SysFont(None, 55)
-        self.options = ["SoftBody", "Spring", "Fluid"]
+        self.options = ["SoftBody", "Spring", "Fluid", "Pendulum"]
         self.buttons = [self.font.render(option, True, BLACK) for option in self.options]
 
     def draw(self, screen):
@@ -40,4 +41,11 @@ class MainMenuScene(Scene):
                         self.scene_manager.switch_to_scene(SoftBodyScene())
                     elif self.options[index] == "Spring":  # Fix the conditional check here
                         self.scene_manager.switch_to_scene(SpringScene())
+                    elif self.options[index] == "Pendulum":  # Fix the conditional check here
+                        self.scene_manager.switch_to_scene(PendulumScene())
                     # Add other scenes as needed
+
+
+
+
+                    
