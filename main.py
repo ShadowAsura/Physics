@@ -35,6 +35,7 @@ BLACK = (0, 0, 0)
 # Main loop
 screen = pygame.display.set_mode((800, 600), pygame.SRCALPHA)
 pygame.display.set_caption("Physics Engine")
+pygame.display.set_icon(pygame.image.load("physics.png"))
 scene_manager = SceneManager()
 clock = pygame.time.Clock()
 running = True

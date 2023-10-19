@@ -1,0 +1,52 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.hero-section {
+    height: 60vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('path_to_your_image.jpg');
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+}
+
+.content {
+    padding: 2em;
+}
+
+.content h2 {
+    margin-top: 2em;
+}
+
+.content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.content li {
+    margin: 1em 0;
+}
+
+.content a {
+    text-decoration: none;
+    color: #333;
+    padding: 0.5em 1em;
+    border: 2px solid #333;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.content a:hover {
+    background-color: #333;
+    color: #fff;
+}

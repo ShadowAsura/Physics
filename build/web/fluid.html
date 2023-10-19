@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="physics.png" type="image/x-icon">
+    <title>Fluid Simulation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            background: linear-gradient(145deg, #111, #333);
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .github-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #fff;
+            font-size: 30px;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        
+
+        .github-icon:hover {
+            color: #ccc;
+        }
+
+        h1 {
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 50px;
+            animation: fadeIn 1s;
+        }
+
+        /* Placeholder for fluid simulation */
+        #fluid-sim {
+            height: 800px;
+            width: 80%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        #fluid-sim .dg {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #fluid-sim canvas {
+            border-radius: 10px;
+        }
+
+
+
+
+
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Fluid Simulation</h1>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
+    <div id="fluid-sim">
+
+        <script src="base.js"></script>
+    </div>
+    <a href="https://github.com/ShadowAsura/Physics" target="_blank" class="github-icon">
+        <i class="fab fa-github"></i>
+    </a>
+</body>
+

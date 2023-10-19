@@ -8,6 +8,9 @@
     }
   ],
   "routes": [
+    { "src": "/", "dest": "/build/web/main.html" },
+    { "src": "/fluid", "dest": "/build/web/fluid.html" },
+    { "src": "/pygame", "dest": "/build/web/index.html" },
     {
       "src": "/(.*)",
       "dest": "/build/web/$1"
