@@ -85,8 +85,14 @@
 
 <body>
     <h1>Fluid Simulation</h1>
-    <script src="https://threejs.org/build/three.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@<version>/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@<version>/examples/jsm/"
+        }
+      }
+    </script>
     <div id="fluid-sim">
 
         <script src="base.js"></script>
