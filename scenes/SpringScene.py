@@ -89,10 +89,10 @@ class SpringScene(Scene):
             if self.shm_button.collidepoint(mouse_x, mouse_y):
                 self.simple_harmonic_mode = not self.simple_harmonic_mode
             elif self.right_arrow_rect.collidepoint(mouse_x, mouse_y):
-                from .FluidScene import FluidScene  # Import here instead of at the top of the file
+                from .FluidScene import FluidScene  # Lazy import to avoid circular references
                 scene_manager.switch_to_scene(FluidScene())
             elif self.left_arrow_rect.collidepoint(mouse_x, mouse_y):
-                from .SoftBodyScene import SoftBodyScene  # Import here instead of at the top of the file
+                from .SoftBodyScene import SoftBodyScene  # Same lazy import trick
                 scene_manager.switch_to_scene(SoftBodyScene())
             else:
                 for spring in self.spring_chain.springs:

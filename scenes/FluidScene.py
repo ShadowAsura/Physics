@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 
-# Constants & Configurations
+# Setup stuff
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 GRID_SIZE = (80, 60) 
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
@@ -29,7 +29,7 @@ class FluidScene():
         return np.linalg.norm(self.velocity[i, j])
     def map_speed_to_color(self, speed):
         """Map speed to a color gradient: Blue for low speed, Red for high speed."""
-        MAX_SPEED = 1.0  # Adjust as needed based on expected max velocity in your simulation
+        MAX_SPEED = 1.0  # Tweak this if colors look weird
         f = min(1, speed / MAX_SPEED)
         r = int(255 * f)
         b = int(255 * (1 - f))
@@ -41,7 +41,7 @@ class FluidScene():
             mx, my = pygame.mouse.get_pos()
             grid_x, grid_y = mx//self.cell_size[0], my//self.cell_size[1]
             self.density[grid_x, grid_y] += 10
-            self.velocity[grid_x, grid_y, 1] += 0.1  # Add a small downward velocity
+            self.velocity[grid_x, grid_y, 1] += 0.1  # Give it a lil push down
         self.velocity[0, :, 0] = 0
         self.velocity[-1, :, 0] = 0
         self.velocity[:, 0, 1] = 0
@@ -53,7 +53,7 @@ class FluidScene():
 
 
     def advection(self):
-        # Simplified advection step: moving densities based on velocity field
+        # Move the fluid around based on speed
         for i in range(GRID_SIZE[0]):
             for j in range(GRID_SIZE[1]):
                 x, y = i - self.velocity[i, j, 1] * self.dt * GRID_SIZE[0], j - self.velocity[i, j, 0] * self.dt * GRID_SIZE[1]
@@ -86,7 +86,7 @@ class FluidScene():
 
     def draw(self, _=None):
         self.screen.fill(WHITE)
-        # Drawing Fluid Grid
+        # Make it look pretty
         for i in range(GRID_SIZE[0]):
             for j in range(GRID_SIZE[1]):
                 speed = self.compute_speed(i, j)

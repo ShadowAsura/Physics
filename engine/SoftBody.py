@@ -76,13 +76,13 @@ class SoftBody:
                 # Apply the translation to move the particle
                 particle.position += translation
 
-                # Calculate the displacement of the particle from the center of mass
+                # Figure out how far it is from center
                 displacement = particle.position - current_center_of_mass
 
-                # Calculate the spring force based on the displacement
+                # Calculate the springy pushback
                 spring_force = -SPRING_CONSTANT * displacement
 
-                # Apply the spring force to the particle
+                # Add that force to the particle
                 particle.forces += spring_force
 
         for spring in self.springs:

@@ -5,11 +5,11 @@ from engine.SoftBody import SoftBody
 from engine.PolygonObject import PolygonObject
 
 
-# Constants
+# Screen size stuff
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-# Colors
+# Basic colors we need
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
@@ -17,33 +17,33 @@ BLACK = (0, 0, 0)
 class SoftBodyScene(Scene):
     def __init__(self):
         super().__init__()
-        # Create a soft body at the center of the screen
-        self.user_polygons = []  # List to store user-created polygons
+        # Throw a soft body in the middle of the screen
+        self.user_polygons = []  # Keeping track of shapes the user makes
         self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5, self.user_polygons, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.dragged_particle = None
-        self.dragged_polygon = None  # Keep track of dragged user polygon
+        self.dragged_polygon = None  # For when user grabs a polygon
         self.right_arrow_rect = pygame.Rect(740, 540, 40, 20)
         self.left_arrow_rect = pygame.Rect(690, 540, 40, 20)
-        # UI Elements
+        # Buttons and stuff
         self.button_rects = {'Add Square': pygame.Rect(10, 10, 100, 50),
                              'Add Triangle': pygame.Rect(120, 10, 100, 50)}
         self.slider_rect = pygame.Rect(10, 70, 200, 10)
         self.slider_thumb_rect = pygame.Rect(10, 65, 10, 20)
-        self.slider_value = 0.5  # Initial value of the slider, range [0, 1]
-        self.mass_value = 1.0  # Initial mass value
+        self.slider_value = 0.5  # Starts halfway
+        self.mass_value = 1.0  # Default weight
 
     def draw(self, screen):
         screen.fill((255, 255, 255))
         self.soft_body.render(screen)
 
-        # Drawing Right Arrow Button
+        # Right arrow for next scene
         pygame.draw.polygon(screen, (0, 0, 0), [
             (self.right_arrow_rect.x, self.right_arrow_rect.y),
             (self.right_arrow_rect.x + self.right_arrow_rect.width, self.right_arrow_rect.y + self.right_arrow_rect.height // 2),
             (self.right_arrow_rect.x, self.right_arrow_rect.y + self.right_arrow_rect.height)
         ])
         
-        # Drawing Left Arrow Button
+        # Left arrow for prev scene
         pygame.draw.polygon(screen, (0, 0, 0), [
             (self.left_arrow_rect.x + self.left_arrow_rect.width, self.left_arrow_rect.y),
             (self.left_arrow_rect.x, self.left_arrow_rect.y + self.left_arrow_rect.height // 2),
@@ -58,7 +58,7 @@ class SoftBodyScene(Scene):
             pygame.draw.rect(screen, (0, 128, 255), rect)
             text_surf = font.render(button, True, (0, 0, 0))
             
-            # Calculate text position to center it in the button
+            # Center the text nice and pretty
             text_x = rect.x + (rect.width - text_surf.get_width()) // 2
             text_y = rect.y + (rect.height - text_surf.get_height()) // 2
             screen.blit(text_surf, (text_x, text_y))
@@ -68,7 +68,7 @@ class SoftBodyScene(Scene):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             mouse_vec = pygame.Vector2(mouse_x, mouse_y)
-            # Check if mouse is near the center of mass
+            # See if user clicked the center bit
             center_of_mass = self.soft_body.compute_center_of_mass()
             distance_to_com = center_of_mass.distance_to(pygame.Vector2(mouse_x, mouse_y))
             if self.right_arrow_rect.collidepoint(mouse_x, mouse_y):

@@ -2,22 +2,22 @@ import math
 import pygame
 from collections import deque
 
-# Constants
+# Screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 
 class Pendulum:
     def __init__(self, length, mass, angle, origin, parent=None):
-        self.length = length  # Length of the pendulum arm
-        self.angle = angle  # Angle from the vertical, in radians
+        self.length = length  # How long the string is
+        self.angle = angle  # How far it's tilted
         self.mass = mass
         self.origin = origin
         self.angular_velocity = 0.0
         self.angular_acceleration = 0.0
-        self.gravity = 9.81  # Gravity constant
+        self.gravity = 9.81  # Earth's pull
         self.time_scale = 4.0 
-        self.parent = parent  # Parent pendulum, if any
+        self.parent = parent  # Connected to another pendulum?
         self.positions = []
         self.trace_points = deque(maxlen=200)
         self.color = (22, 77, 105)
@@ -25,20 +25,20 @@ class Pendulum:
 
     def update(self, dt):
         dt = dt * self.time_scale
-        # Define the system of ODEs
+        # Math stuff for the swing
         def f(t, y):
             angle, angular_velocity = y
             dydt = [angular_velocity, -self.gravity / self.length * math.sin(angle)]
             return dydt
 
-        # 4th Order Runge-Kutta Method
+        # Fancy math to make it move right
         y = [self.angle, self.angular_velocity]
         k1 = [dt * yi for yi in f(0, y)]
         k2 = [dt * yi for yi in f(0, [yj + 0.5 * k1j for yj, k1j in zip(y, k1)])]
         k3 = [dt * yi for yi in f(0, [yj + 0.5 * k2j for yj, k2j in zip(y, k2)])]
         k4 = [dt * yi for yi in f(0, [yj + k3j for yj, k3j in zip(y, k3)])]
 
-        # Update angle and angular velocity
+        # Update how it's swinging
         self.angle += (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]) / 6
         self.angular_velocity += (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]) / 6
 
@@ -52,8 +52,8 @@ class Pendulum:
         pygame.draw.circle(screen, (0, 0, 255), (int(end_x), int(end_y)), 10)
 
         for i, (x, y) in enumerate(self.trace_points):
-            alpha = int((i / len(self.trace_points)) * 255)  # Fade out older points
-            color = (*self.color, alpha)  # Assuming self.pendulum.color is an RGB tuple
+            alpha = int((i / len(self.trace_points)) * 255)  # Make old points fade away
+            color = (*self.color, alpha)  # Mix in transparency
             pygame.draw.circle(screen, color, (int(x), int(y)), 2)
 
     def is_mouse_over(self, mouse_pos):
@@ -61,8 +61,8 @@ class Pendulum:
             return False
         
         current_position = self.positions[-1]
-        x1, y1 = current_position  # Unpack current_position tuple into x1 and y1
-        x2, y2 = mouse_pos  # Unpack mouse_pos tuple into x2 and y2
+        x1, y1 = current_position  # Split up the position coords
+        x2, y2 = mouse_pos  # Split up the mouse coords
         
         distance_to_mouse = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
         return distance_to_mouse < self.bob_radius

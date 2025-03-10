@@ -11,8 +11,8 @@ class SoftSpring:
         self.base_rest_length = self.rest_length
 
     def update(self):
-        damping_factor = 0.1  # Adjust as needed
-        stiffness_factor = 0.1  # Adjust as needed
+        damping_factor = 0.1  # Tweak this to change bounciness
+        stiffness_factor = 0.1  # How stretchy the spring is
         
         force_direction = self.particle_b.position - self.particle_a.position
         if force_direction.length() == 0:
@@ -31,15 +31,15 @@ class SoftSpring:
 
 
     def draw(self, screen):
-        # Assuming self.particle_a and self.particle_b are the endpoints of the spring
-        p0 = self.particle_a.position  # Start point
-        p3 = self.particle_b.position  # End point
+        # Grab the two ends of the spring
+        p0 = self.particle_a.position  # Where it starts
+        p3 = self.particle_b.position  # Where it ends
         
-        # Calculate control points for Bezier curve
-        p1 = p0 + (p3 - p0) * 0.3  # Control point near the start
-        p2 = p3 - (p3 - p0) * 0.3  # Control point near the end
+        # Figure out how to make it curvy
+        p1 = p0 + (p3 - p0) * 0.3  # Bend point near start
+        p2 = p3 - (p3 - p0) * 0.3  # Bend point near end
         
-        num_points = 10  # Number of points to interpolate along the curve
+        num_points = 10  # How smooth we want it
         for t in range(num_points):
             t /= num_points
             x = (1 - t) ** 3 * p0.x + 3 * (1 - t) ** 2 * t * p1.x + 3 * (1 - t) * t ** 2 * p2.x + t ** 3 * p3.x

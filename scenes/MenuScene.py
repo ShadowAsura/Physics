@@ -39,9 +39,9 @@ class MainMenuScene(Scene):
                         self.scene_manager.switch_to_scene(FluidScene())
                     elif self.options[index] == "SoftBody":
                         self.scene_manager.switch_to_scene(SoftBodyScene())
-                    elif self.options[index] == "Spring":  # Fix the conditional check here
+                    elif self.options[index] == "Spring":  # Gotta check the right option
                         self.scene_manager.switch_to_scene(SpringScene())
-                    elif self.options[index] == "Pendulum":  # Fix the conditional check here
+                    elif self.options[index] == "Pendulum":  # Same deal here
                         self.scene_manager.switch_to_scene(PendulumScene())
                     # Add other scenes as needed
 

@@ -21,17 +21,17 @@ class Spring:
         distance = math.dist(self.anchor, self.end)
         stretch_ratio = (distance - self.rest_length) / distance
         
-        # Calculate the sag factor
+        # Figure out how much sag we need
         sag_factor = max(0, 1 - distance / (1.5 * self.rest_length))
         
-        # Adjust the sag amount based on stretch ratio and sag factor
+        # Tweak the sag based on how stretched it is
         sag_amount = sag_factor * 0.5 * (1 - abs(dy) / distance) * self.rest_length
         
-        # Adjust sag direction based on the horizontal position of the end point
+        # Flip the sag if needed
         sag_direction = -1 if dx < 0 else 1
         sag_amount *= sag_direction
         
-        # Calculate control points for the cubic Bezier curve
+        # Calc the bendy points for the curve
         control1_x = self.anchor[0] + dx * 0.25
         control2_x = self.anchor[0] + dx * 0.75
 
@@ -41,7 +41,7 @@ class Spring:
         control1 = [control1_x, control1_y]
         control2 = [control2_x, control2_y]
 
-        # Draw the cubic Bezier curve using a number of intermediate points
+        # Draw the curvy spring line
         curve_points = [self.anchor]
         for t in [i * 0.01 for i in range(101)]:
             x = (1 - t) ** 3 * self.anchor[0] + 3 * (1 - t) ** 2 * t * control1_x + 3 * (1 - t) * t ** 2 * control2_x + t ** 3 * self.end[0]
@@ -49,14 +49,14 @@ class Spring:
             curve_points.append([x, y])
         pygame.draw.aalines(screen, (0, 0, 0), False, curve_points)
 
-        # Draw the mass at the end
+        # Slap a ball on the end
         pygame.draw.circle(screen, (0, 0, 255), (int(self.end[0]), int(self.end[1])), 10)
 
 
 
 
     def update(self):
-        # Collision detection with screen edges
+        # Don't let it escape the screen
         if self.end[0] < 0:
             self.end[0] = 0
             self.velocity[0] = 0
@@ -86,7 +86,7 @@ class Spring:
             self.end[0] += self.velocity[0]
             self.end[1] += self.velocity[1]
 
-            # Ensure the ball doesn't pass through the anchor point
+            # Stop the ball from going thru the anchor
             min_distance = 10
             if math.dist(self.anchor, self.end) < min_distance:
                 self.end = [self.anchor[0] + min_distance * math.cos(angle), self.anchor[1] + min_distance * math.sin(angle)]
@@ -113,7 +113,7 @@ class Spring:
             pygame.draw.arc(screen, (0, 0, 0), (mid_x - 10, mid_y - coil_length / 2, 20, coil_length), angle, angle + math.pi, 2)
             pygame.draw.arc(screen, (0, 0, 0), (mid_x - 10, mid_y, 20, coil_length), angle + math.pi, angle + 2*math.pi, 2)
         
-        # Draw the mass at the end
+        # Slap a ball on the end
         pygame.draw.circle(screen, (0, 0, 255), (int(self.end[0]), int(self.end[1])), 10)
 
 """

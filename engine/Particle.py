@@ -23,9 +23,9 @@ class Particle:
 
     def check_wall_collision(self, window_width, window_height):
         if self.position.x <= 0 or self.position.x >= window_width:
-            self.velocity.x *= -0.9  # Reflect and dampen
+            self.velocity.x *= -0.9  # Bounce back w/ some slowdown
         if self.position.y <= 0 or self.position.y >= window_height:
-            self.velocity.y *= -0.9  # Reflect and dampen
+            self.velocity.y *= -0.9  # Bounce back w/ some slowdown
 
     def integrate(self, dt):
         acceleration = self.forces / self.mass
@@ -34,7 +34,7 @@ class Particle:
         self.forces = pygame.Vector2(0, 0)
         self.velocity *= self.damping
 
-        # Boundary checks
+        # Keep stuff on screen
         if self.position.x < self.radius:
             self.position.x = self.radius
             self.velocity.x *= -1

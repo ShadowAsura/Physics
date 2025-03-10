@@ -20,19 +20,19 @@ from scenes.SpringScene import SpringScene
 from scenes.FluidScene import FluidScene
 from scenes.PendulumScene import PendulumScene
 
-# Initialize pygame
+# Fire up pygame
 pygame.init()
 
-# Constants
+# Screen size stuff
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-# Colors
+# Basic colors we need
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 
-# Main loop
+# Let's get this party started
 screen = pygame.display.set_mode((800, 600), pygame.SRCALPHA)
 pygame.display.set_caption("Physics Engine")
 pygame.display.set_icon(pygame.image.load("physics.png"))
@@ -40,7 +40,7 @@ scene_manager = SceneManager()
 clock = pygame.time.Clock()
 running = True
 while running:
-    events = pygame.event.get()  # Get all events in the queue
+    events = pygame.event.get()  # Grab all the stuff that happened
     for event in events:
         if event.type == pygame.QUIT:
             running = False
@@ -53,7 +53,7 @@ while running:
     scene_manager.update()
     scene_manager.draw(screen)
     pygame.display.flip()
-    clock.tick(75)  # This will cap the loop to run at 60 FPS
+    clock.tick(75)  # Keep things smooth at 60fps
 
 
 pygame.quit()

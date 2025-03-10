@@ -5,17 +5,17 @@ import math
 class FluidParticle:
     def __init__(self, x, y, mass=1.0, radius=5.0):
         self.position = pygame.Vector2(x, y)
-        self.velocity = pygame.Vector2(random.uniform(-5, 5), random.uniform(-5, 5))  # Wider range
+        self.velocity = pygame.Vector2(random.uniform(-5, 5), random.uniform(-5, 5))  # Give it some random zoom
         self.mass = mass
         self.radius = radius
         self.forces = pygame.Vector2(0, 0)
-        self.coefficient_of_restitution = 0.9  # Closer to 1 for less energy loss
+        self.coefficient_of_restitution = 0.9  # How bouncy it is
 
     def apply_force(self, force):
         self.forces += force
 
     def apply_gravity(self):
-        GRAVITY = pygame.Vector2(0, 9.8)  # Reduced for more 'floaty' behavior
+        GRAVITY = pygame.Vector2(0, 9.8)  # Pull stuff down, yo
         self.apply_force(GRAVITY * self.mass)
 
     def update(self, dt):

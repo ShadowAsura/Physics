@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="physics.png" type="image/x-icon">
+    <title>Physics Engine Simulation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/three@v0.149.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            background: linear-gradient(145deg, #111, #333);
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .github-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #fff;
+            font-size: 30px;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        .github-icon:hover {
+            color: #ccc;
+        }
+
+        h1 {
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s;
+            z-index: 1;
+        }
+
+        /* Simulation container */
+        #physics-sim {
+            height: 80vh;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #physics-sim canvas {
+            border-radius: 10px;
+        }
+
+        /* Hovering control bar */
+        .control-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .control-bar:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-bar button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-bar button i {
+            margin-right: 8px;
+        }
+
+        .control-bar button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .control-bar button.active {
+            background: #4a90e2;
+        }
+
+        /* Control UI Box */
+        .control-ui-box {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            width: 280px;
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+            transform: translateX(320px);
+        }
+
+        .control-ui-box.visible {
+            transform: translateX(0);
+        }
+
+        .control-ui-box h3 {
+            margin-top: 0;
+            color: #fff;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .control-ui-box .parameter {
+            margin: 15px 0;
+        }
+
+        .control-ui-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .control-ui-box input[type="range"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-ui-box input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+        }
+
+        .control-ui-box .value {
+            float: right;
+            font-size: 14px;
+            color: #4a90e2;
+        }
+
+        /* Add elements section */
+        .add-elements {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .add-elements button {
+            width: 48%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 8px 0;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .add-elements button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Notification */
+        .notification {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(30, 30, 30, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Physics Engine Simulation</h1>
+    
+    <div id="physics-sim">
+        <!-- Hovering control bar -->
+        <div class="control-bar">
+            <button id="physics-engine-btn" class="active"><i class="fas fa-atom"></i>Physics Engine</button>
+            <button id="add-elements-btn"><i class="fas fa-plus-circle"></i>Add Elements</button>
+            <button id="settings-btn"><i class="fas fa-sliders-h"></i>Settings</button>
+            <button id="reset-btn"><i class="fas fa-redo"></i>Reset</button>
+        </div>
+
+        <!-- Control UI Box -->
+        <div class="control-ui-box" id="control-ui">
+            <h3>Physics Parameters</h3>
+            <div class="parameter">
+                <label for="gravity">Gravity <span class="value" id="gravity-value">9.8</span></label>
+                <input type="range" id="gravity" min="0" max="20" step="0.1" value="9.8">
+            </div>
+            <div class="parameter">
+                <label for="elasticity">Elasticity <span class="value" id="elasticity-value">0.7</span></label>
+                <input type="range" id="elasticity" min="0" max="1" step="0.01" value="0.7">
+            </div>
+            <div class="parameter">
+                <label for="friction">Friction <span class="value" id="friction-value">0.3</span></label>
+                <input type="range" id="friction" min="0" max="1" step="0.01" value="0.3">
+            </div>
+            <div class="parameter">
+                <label for="spring-stiffness">Spring Stiffness <span class="value" id="spring-stiffness-value">0.5</span></label>
+                <input type="range" id="spring-stiffness" min="0" max="1" step="0.01" value="0.5">
+            </div>
+
+            <div class="add-elements">
+                <button id="add-ball">Add Ball</button>
+                <button id="add-box">Add Box</button>
+                <button id="add-spring">Add Spring</button>
+                <button id="add-pendulum">Add Pendulum</button>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification">Physics engine initialized</div>
+    </div>
+
+    <a href="https://github.com/ShadowAsura/Physics" target="_blank" class="github-icon">
+        <i class="fab fa-github"></i>
+    </a>
+
+    <script type="module" src="physics-engine.js"></script>
+</body>
+
+</html>
