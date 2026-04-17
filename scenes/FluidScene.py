@@ -1,5 +1,10 @@
 import pygame
-import numpy as np
+try:
+    import numpy as np
+    HAS_NUMPY = True
+except Exception:
+    np = None
+    HAS_NUMPY = False
 from engine.config import config
 
 # Setup stuff
@@ -8,6 +13,13 @@ WHITE, BLACK = (255, 255, 255), (0, 0, 0)
 
 class FluidScene():
     def __init__(self):
+        self.numpy_available = HAS_NUMPY
+        self.mouse_down = False
+        if not self.numpy_available:
+            self.unavailable_message = "Fluid scene unavailable: NumPy is missing in this build."
+            self.cell_size = (1, 1)
+            return
+
         self.density = np.zeros(GRID_SIZE) 
         self.new_density = np.zeros_like(self.density)
         self.velocity = np.array(np.meshgrid(
@@ -17,7 +29,7 @@ class FluidScene():
         self.diffusion_rate = 0.1
         self.dt = 0.016
         self.cell_size = (config.width // GRID_SIZE[0], config.height // GRID_SIZE[1])
-        self.mouse_down = False
+
     def compute_speed(self, i, j):
         """Compute speed based on the velocity vector at a given grid cell."""
         return np.linalg.norm(self.velocity[i, j])
@@ -29,6 +41,9 @@ class FluidScene():
         b = int(255 * (1 - f))
         return (r, 0, b)
     def update(self, dt):
+        if not self.numpy_available:
+            return
+
         self.dt = dt
         self.advection()
         self.diffusion()
@@ -48,6 +63,9 @@ class FluidScene():
 
 
     def advection(self):
+        if not self.numpy_available:
+            return
+
         # Move the fluid around based on speed
         for i in range(GRID_SIZE[0]):
             for j in range(GRID_SIZE[1]):
@@ -57,6 +75,9 @@ class FluidScene():
         self.density[:] = self.new_density[:]
 
     def diffusion(self):
+        if not self.numpy_available:
+            return
+
         for i in range(GRID_SIZE[0]):
             for j in range(GRID_SIZE[1]):
                 neighbors = [(i-1, j), (i+1, j), (i, j-1), (i, j+1)]
@@ -65,6 +86,9 @@ class FluidScene():
         self.density[:] = self.new_density[:]
 
     def handle_event(self, event, _=None):
+        if not self.numpy_available:
+            return
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_down = True
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -78,6 +102,20 @@ class FluidScene():
                 pygame.draw.line(screen, BLACK, start_pos, end_pos, 1)
 
     def draw(self, screen):
+        if not self.numpy_available:
+            screen.fill(WHITE)
+            title_font = pygame.font.SysFont(None, 42)
+            body_font = pygame.font.SysFont(None, 28)
+
+            title = title_font.render("Fluid Scene Unavailable", True, BLACK)
+            line1 = body_font.render("NumPy is required for this simulation.", True, BLACK)
+            line2 = body_font.render("Use desktop app for full fluid simulation.", True, BLACK)
+
+            screen.blit(title, (config.width // 2 - title.get_width() // 2, config.height // 2 - 60))
+            screen.blit(line1, (config.width // 2 - line1.get_width() // 2, config.height // 2 - 10))
+            screen.blit(line2, (config.width // 2 - line2.get_width() // 2, config.height // 2 + 24))
+            return
+
         screen.fill(WHITE)
         # Make it look pretty
         for i in range(GRID_SIZE[0]):

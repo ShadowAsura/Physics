@@ -183,7 +183,16 @@ async def custom_site():
     screen.fill( (0,0,0,0) )
     pygame.display.flip()
 
-    await shell.runpy(main, callback=ui_callback)
+    try:
+        await shell.runpy(main, callback=ui_callback)
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        try:
+            from js import console
+            console.error(f"Python runtime error: {exc!r}")
+        except Exception:
+            pass
 
 
 
