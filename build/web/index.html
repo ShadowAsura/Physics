@@ -246,6 +246,85 @@ config = {
     PYBUILD : "3.11"
 }
 
+// Work around pygame-web CDN responses where Content-Length is smaller than
+// the actual streamed payload, which corrupts preallocated buffers in cross_track.
+(function patchCrossTrackForLengthMismatch() {
+    function applyPatch() {
+        if (typeof window.cross_track !== "function" || !window.MM) {
+            return false;
+        }
+        if (window.__crossTrackPatched) {
+            return true;
+        }
+
+        window.__crossTrackPatched = true;
+
+        window.cross_track = async function cross_track(trackid, url, flags) {
+            const response = await fetch(url, flags || (window.FETCH_FLAGS || {}));
+            checkStatus(response);
+
+            const reader = response.body.getReader();
+            const track = window.MM[trackid];
+            const chunks = [];
+
+            let total = 0;
+            track.pos = 0;
+            track.len = Number(response.headers.get("Content-Length")) || 0;
+
+            console.warn(url, track.len);
+
+            while (true) {
+                const result = await reader.read();
+                if (result.done) {
+                    track.avail = true;
+                    break;
+                }
+
+                const chunk = result.value || new Uint8Array(0);
+                if (chunk.length) {
+                    chunks.push(chunk);
+                    total += chunk.length;
+                    track.pos = total;
+                }
+            }
+
+            const data = new Uint8Array(total);
+            let offset = 0;
+            for (const chunk of chunks) {
+                data.set(chunk, offset);
+                offset += chunk.length;
+            }
+
+            track.data = data;
+            if (!track.len || track.len < total) {
+                track.len = total;
+            }
+
+            console.log(`${trackid}:${url} Received ${track.pos} of ${track.len} to ${track.path}`);
+            if (track.type === "fs") {
+                FS.writeFile(track.path, track.data);
+            }
+        };
+
+        console.warn("Applied cross_track patch for mismatched Content-Length responses");
+        return true;
+    }
+
+    if (applyPatch()) {
+        return;
+    }
+
+    const intervalId = setInterval(function () {
+        if (applyPatch()) {
+            clearInterval(intervalId);
+        }
+    }, 50);
+
+    setTimeout(function () {
+        clearInterval(intervalId);
+    }, 15000);
+})();
+
 </script>
 
     <title>physics</title>
