@@ -3,11 +3,7 @@ import math
 from .Scene import Scene
 from engine.SpringChain import SpringChain
 from ui.SpringUI import SpringUI
-
-
-# Constants
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+from engine.config import config
 
 # Colors
 WHITE = (255, 255, 255)
@@ -17,7 +13,7 @@ BLACK = (0, 0, 0)
 class SpringScene(Scene):
     def __init__(self):
         super().__init__()
-        self.spring_chain = SpringChain(SCREEN_WIDTH // 2, 100, 1, 100, 0.05, SCREEN_HEIGHT)
+        self.spring_chain = SpringChain(config.width // 2, 100, 1, 100, 0.05, config.height, config.width)
         self.spring_ui = SpringUI(10, 10)
         self.right_arrow_rect = pygame.Rect(740, 540, 40, 20)
         self.left_arrow_rect = pygame.Rect(690, 540, 40, 20)
@@ -66,7 +62,7 @@ class SpringScene(Scene):
         
         screen.blit(button_text, text_rect)
 
-        graph_x, graph_y = SCREEN_WIDTH - self.graph_width, 50
+        graph_x, graph_y = config.width - self.graph_width, 50
         graph_height = 100
 
         pygame.draw.rect(screen, (0, 0, 0), (graph_x, graph_y, self.graph_width, graph_height), 1)
@@ -89,11 +85,9 @@ class SpringScene(Scene):
             if self.shm_button.collidepoint(mouse_x, mouse_y):
                 self.simple_harmonic_mode = not self.simple_harmonic_mode
             elif self.right_arrow_rect.collidepoint(mouse_x, mouse_y):
-                from .FluidScene import FluidScene  # Lazy import to avoid circular references
-                scene_manager.switch_to_scene(FluidScene())
+                scene_manager.switch_to("fluid")
             elif self.left_arrow_rect.collidepoint(mouse_x, mouse_y):
-                from .SoftBodyScene import SoftBodyScene  # Same lazy import trick
-                scene_manager.switch_to_scene(SoftBodyScene())
+                scene_manager.switch_to("softbody")
             else:
                 for spring in self.spring_chain.springs:
                     if math.sqrt((mouse_x - spring.end[0]) ** 2 + (mouse_y - spring.end[1]) ** 2) < 20:
@@ -108,8 +102,8 @@ class SpringScene(Scene):
                 self.pulled = False  # Spring is no longer being pulled
 
 
-    def update(self):
-        self.time_elapsed += 0.016  # Assuming 60 FPS, so dt is approximately 0.016
+    def update(self, dt):
+        self.time_elapsed += dt
 
         last_spring = self.spring_chain.springs[-1]
         k = last_spring.k
@@ -125,10 +119,10 @@ class SpringScene(Scene):
                 acceleration = -omega * omega * displacement
 
                 # Update velocity
-                self.velocity += acceleration * 0.016  # dt is 0.016
+                self.velocity += acceleration * dt
 
                 # Update position based on velocity
-                last_spring.end[1] += self.velocity * 0.016  # dt is 0.016
+                last_spring.end[1] += self.velocity * dt
 
             elif self.pulled and not self.released:
                 self.released = True  # The spring has been released, SHM starts

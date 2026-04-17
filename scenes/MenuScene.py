@@ -5,10 +5,7 @@ from .FluidScene import FluidScene
 from .SoftBodyScene import SoftBodyScene
 from .SpringScene import SpringScene
 from .PendulumScene import PendulumScene
-
-# Constants
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+from engine.config import config
 
 # Colors
 WHITE = (255, 255, 255)
@@ -25,14 +22,13 @@ class MainMenuScene(Scene):
     def draw(self, screen):
         screen.fill(WHITE)
         for index, button in enumerate(self.buttons):
-            screen.blit(button, (SCREEN_WIDTH // 2 - button.get_width() // 2, 150 + index * 60))
+            screen.blit(button, (config.width // 2 - button.get_width() // 2, 150 + index * 60))
 
     def handle_event(self, event, scene_manager):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            print("Mouse button down event captured in MainMenuScene!")  # Debugging print statement
             mouse_x, mouse_y = pygame.mouse.get_pos()
             for index, button in enumerate(self.buttons):
-                button_rect = button.get_rect(topleft=(SCREEN_WIDTH // 2 - button.get_width() // 2, 150 + index * 60))
+                button_rect = button.get_rect(topleft=(config.width // 2 - button.get_width() // 2, 150 + index * 60))
                 if button_rect.collidepoint(mouse_x, mouse_y):
                     # Switch to the corresponding scene
                     if self.options[index] == "Fluid":

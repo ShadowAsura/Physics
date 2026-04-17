@@ -5,8 +5,8 @@ from engine.Spring import Spring
 
 
 class SpringChain:
-    def __init__(self, anchor_x, anchor_y, num_springs, length, k, screen_height):
-        self.springs = [Spring(anchor_x, anchor_y + i * length, length, k, screen_height) for i in range(num_springs)]
+    def __init__(self, anchor_x, anchor_y, num_springs, length, k, screen_height, screen_width=800):
+        self.springs = [Spring(anchor_x, anchor_y + i * length, length, k, screen_height, screen_width=screen_width) for i in range(num_springs)]
         self.dragging = False
         self.dragged_spring = None
     def update(self):

@@ -1,10 +1,8 @@
 import pygame
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+from .config import config
 
 class Particle:
-    def __init__(self, x, y, mass=1.0, screen_width=800, screen_height=600):
+    def __init__(self, x, y, mass=1.0, screen_width=config.width, screen_height=config.height):
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(0, 0)
         self.mass = mass

@@ -3,11 +3,7 @@ import math
 from .Scene import Scene
 from engine.SoftBody import SoftBody
 from engine.PolygonObject import PolygonObject
-
-
-# Screen size stuff
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+from engine.config import config
 
 # Basic colors we need
 WHITE = (255, 255, 255)
@@ -19,7 +15,7 @@ class SoftBodyScene(Scene):
         super().__init__()
         # Throw a soft body in the middle of the screen
         self.user_polygons = []  # Keeping track of shapes the user makes
-        self.soft_body = SoftBody(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 100, 200, 200, 1.0, 0.05, 5, self.user_polygons, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.soft_body = SoftBody(config.width // 2 - 100, config.height // 2 - 100, 200, 200, 1.0, 0.05, 5, self.user_polygons, config.width, config.height)
         self.dragged_particle = None
         self.dragged_polygon = None  # For when user grabs a polygon
         self.right_arrow_rect = pygame.Rect(740, 540, 40, 20)
@@ -72,11 +68,9 @@ class SoftBodyScene(Scene):
             center_of_mass = self.soft_body.compute_center_of_mass()
             distance_to_com = center_of_mass.distance_to(pygame.Vector2(mouse_x, mouse_y))
             if self.right_arrow_rect.collidepoint(mouse_x, mouse_y):
-                from .SpringScene import SpringScene  # Import here instead of at the top of the file
-                scene_manager.switch_to_scene(SpringScene())
+                scene_manager.switch_to("spring")
             elif self.left_arrow_rect.collidepoint(mouse_x, mouse_y):
-                from .FluidScene import FluidScene  # Import here instead of at the top of the file
-                scene_manager.switch_to_scene(FluidScene())
+                scene_manager.switch_to("fluid")
             for poly in self.user_polygons:
                 if poly.is_point_inside(mouse_vec):
                     self.dragged_polygon = poly
@@ -84,8 +78,8 @@ class SoftBodyScene(Scene):
             # Check if a UI button was clicked
             for button, rect in self.button_rects.items():
                 if rect.collidepoint(mouse_x, mouse_y):
-                    center_x = SCREEN_WIDTH // 2
-                    center_y = SCREEN_HEIGHT // 2
+                    center_x = config.width // 2
+                    center_y = config.height // 2
 
                     if button == 'Add Square':
                         self.add_square(center_x, center_y)
@@ -136,18 +130,13 @@ class SoftBodyScene(Scene):
             elif self.dragged_particle:
                 self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
 
-
-
-    def update(self):
+    def update(self, dt):
         if self.dragged_particle:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.dragged_particle.position = pygame.Vector2(mouse_x, mouse_y)
         elif self.soft_body.dragging:
             pass
-        self.soft_body.update(0.016)  # Assuming 60 FPS, so dt is approximately 0.016
-        for particle in self.soft_body.particles:
-            particle.apply_gravity()
-            particle.integrate(0.01667)
+        self.soft_body.update(dt)
         for poly in self.user_polygons:
             for particle in self.soft_body.particles:
                 if poly.is_point_inside(particle.position):

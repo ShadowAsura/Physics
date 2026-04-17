@@ -55,8 +55,6 @@ class SpringUI:
         # Define mouse_x and mouse_y at the beginning of the method
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-        print("handle_event called")  # Debugging print statement
-
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Handle gravity slider
             if math.sqrt((mouse_x - self.gravity_slider_x)**2 + (mouse_y - (self.y + 150))**2) < 10:
@@ -64,7 +62,8 @@ class SpringUI:
 
             # Handle Add Spring button
             if pygame.Rect(self.x, self.y, 100, 40).collidepoint(mouse_x, mouse_y):
-                new_spring = Spring(spring_chain.springs[-1].end[0], spring_chain.springs[-1].end[1], 100, 0.05, 600)
+                last_spring = spring_chain.springs[-1]
+                new_spring = Spring(last_spring.end[0], last_spring.end[1], 100, 0.05, last_spring.screen_height, screen_width=last_spring.screen_width)
                 spring_chain.springs.append(new_spring)
 
             # Handle Remove Spring button
@@ -73,24 +72,18 @@ class SpringUI:
                     spring_chain.springs.pop()
 
             if math.sqrt((mouse_x - self.slider_x)**2 + (mouse_y - (self.y + 100))**2) < 10:
-                print("Setting dragging_slider to True")  # Debugging
                 self.dragging_slider = True
 
         elif event.type == pygame.MOUSEBUTTONUP:
-            print("Setting dragging_slider to False")  # Debugging
             self.dragging_slider = False
             self.dragging_gravity_slider = False  # Add this line
 
         elif event.type == pygame.MOUSEMOTION:
-            print("Mouse motion detected")  # Debugging
             if self.dragging_slider:
-                print("Dragging slider")  # Debugging
                 self.slider_x = min(max(self.x, mouse_x), self.x + 100)
-                print("Slider X:", self.slider_x)  # Debugging
 
                 # Update the k value based on the new slider_x position
                 self.k = 0.01 + 0.19 * (self.slider_x - self.x) / 100.0  # Update k value between 0.01 and 0.2 N/m
-                print(f"Current k value: {self.k}")  # Debugging
 
             elif self.dragging_gravity_slider:
                 self.gravity_slider_x = min(max(self.x, mouse_x), self.x + 100)

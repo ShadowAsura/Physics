@@ -2,10 +2,6 @@ import math
 import pygame
 from collections import deque
 
-# Screen dimensions
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-
 
 class Pendulum:
     def __init__(self, length, mass, angle, origin, parent=None):

@@ -3,9 +3,10 @@ import pygame
 import pygame.gfxdraw
 
 class Spring:
-    def __init__(self, anchor_x, anchor_y, length, k, screen_height, num_coils=12):
+    def __init__(self, anchor_x, anchor_y, length, k, screen_height, num_coils=12, screen_width=800):
         self.anchor = [anchor_x, anchor_y]
         self.screen_height = screen_height
+        self.screen_width = screen_width
         self.rest_length = length
         self.k = k
         self.end = [anchor_x, anchor_y + length]
@@ -60,8 +61,8 @@ class Spring:
         if self.end[0] < 0:
             self.end[0] = 0
             self.velocity[0] = 0
-        elif self.end[0] > 800: #Screen width
-            self.end[0] = 800
+        elif self.end[0] > self.screen_width:
+            self.end[0] = self.screen_width
             self.velocity[0] = 0
 
         if self.end[1] < 0:
@@ -90,30 +91,3 @@ class Spring:
             min_distance = 10
             if math.dist(self.anchor, self.end) < min_distance:
                 self.end = [self.anchor[0] + min_distance * math.cos(angle), self.anchor[1] + min_distance * math.sin(angle)]
-
-
-
-
-
-"""
-    def draw(self, screen):
-        angle = math.atan2(self.end[1] - self.anchor[1], self.end[0] - self.anchor[0])
-        current_length = math.dist(self.anchor, self.end)
-        coil_length = current_length / self.num_coils
-
-        for i in range(self.num_coils):
-            start_x = self.anchor[0] + i * (self.end[0] - self.anchor[0]) / self.num_coils 
-            start_y = self.anchor[1] + i * (self.end[1] - self.anchor[1]) / self.num_coils
-            end_x = self.anchor[0] + (i + 1) * (self.end[0] - self.anchor[0]) / self.num_coils
-            end_y = self.anchor[1] + (i + 1) * (self.end[1] - self.anchor[1]) / self.num_coils
-
-            mid_x = (start_x + end_x) / 2
-            mid_y = (start_y + end_y) / 2
-
-            pygame.draw.arc(screen, (0, 0, 0), (mid_x - 10, mid_y - coil_length / 2, 20, coil_length), angle, angle + math.pi, 2)
-            pygame.draw.arc(screen, (0, 0, 0), (mid_x - 10, mid_y, 20, coil_length), angle + math.pi, angle + 2*math.pi, 2)
-        
-        # Slap a ball on the end
-        pygame.draw.circle(screen, (0, 0, 255), (int(self.end[0]), int(self.end[1])), 10)
-
-"""
